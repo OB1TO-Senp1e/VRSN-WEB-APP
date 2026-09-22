@@ -16,25 +16,67 @@ export const studio = {
 } as const
 
 /* ------------------------------------------------------------------ */
+/* Hero / Manifesto / Statement                                        */
+/* ------------------------------------------------------------------ */
+
+export const hero = {
+  label: 'Independent creative studio',
+  headline: ['EVERY BRAND', 'HAS A BETTER', 'VERSION.'],
+  /** Short positioning under the headline. */
+  positioning:
+    'VRSN is an independent studio for brand identity, digital experience and motion. We find the version of a company people actually remember — then build it, end to end.',
+  cta: 'Start a project'
+}
+
+/** Scroll-scrubbed manifesto. Words in `emphasis` resolve to the accent. */
+export const manifesto = {
+  text:
+    'A brand is not a logo, a palette or a deck. It is the residue left behind after every encounter. So we design the encounters.',
+  emphasis: ['residue', 'encounters.']
+}
+
+export const statement = {
+  headline: ['WE TURN', 'IDEAS INTO', 'IDENTITIES.'],
+  body: [
+    'VRSN is an independent practice for companies that would rather be recognised than described. We work in three moves — find the idea, give it a form, then build it properly.',
+    `Founded in ${studio.founded}. Small team by design, led by the people who actually make the work.`
+  ]
+}
+
+/* ------------------------------------------------------------------ */
 /* Projects                                                            */
 /* ------------------------------------------------------------------ */
 
-/** Editorial layout recipe — each project is composed differently. */
-export type Composition = 'left' | 'right' | 'full' | 'tall-left' | 'tall-right'
+/**
+ * Editorial layout recipe — no two consecutive projects share one.
+ *  feature      — large, left, 8/12
+ *  offset-right — narrower, pushed right, 5/12, vertically offset
+ *  full         — full bleed 12/12, meta on a two-column baseline
+ *  split        — image 7/12 with meta standing beside it
+ *  half-right   — 6/12 from column 7
+ *  tall-left    — 5/12 portrait
+ *  wide-right   — 7/12 from column 6
+ */
+export type Composition =
+  | 'feature'
+  | 'offset-right'
+  | 'full'
+  | 'split'
+  | 'half-right'
+  | 'tall-left'
+  | 'wide-right'
 
 export interface Project {
   id: string
   index: string
   title: string
-  /** Filter keys this project belongs to. */
   categories: string[]
-  /** Human-readable discipline line. */
   discipline: string
   year: string
+  client: string
   summary: string
   image: string
   alt: string
-  /** aspect-ratio utility for the frame */
   aspect: string
   composition: Composition
   award?: string
@@ -48,12 +90,13 @@ export const projects: Project[] = [
     categories: ['branding', 'web'],
     discipline: 'Brand Identity / Web',
     year: '2026',
+    client: 'Aether Energy',
     summary:
       'Identity and launch platform for a climate-tech company turning industrial waste heat into power.',
     image: '/images/work-aether.jpg',
     alt: 'Angular concrete stairwell cut by hard diagonal shadows — Aether brand campaign image',
     aspect: 'aspect-[4/5]',
-    composition: 'left',
+    composition: 'feature',
     award: 'Site of the Day'
   },
   {
@@ -63,12 +106,13 @@ export const projects: Project[] = [
     categories: ['digital', 'web'],
     discipline: 'Digital Experience',
     year: '2025',
+    client: 'Monolith Furniture',
     summary:
       'An immersive product configurator for a furniture house obsessed with material honesty.',
     image: '/images/work-monolith.jpg',
     alt: 'Intersecting black structural beams against a textured pale wall — Monolith visual',
     aspect: 'aspect-[3/4]',
-    composition: 'tall-right'
+    composition: 'offset-right'
   },
   {
     id: 'halcyon',
@@ -77,11 +121,12 @@ export const projects: Project[] = [
     categories: ['branding', 'packaging'],
     discipline: 'Identity / Packaging',
     year: '2025',
+    client: 'Halcyon',
     summary:
       'A restrained identity and packaging system for a fragrance house built on a single note.',
     image: '/images/work-halcyon.jpg',
     alt: 'Wide monochrome modernist facade with deep repeating window recesses — Halcyon identity',
-    aspect: 'aspect-[21/9]',
+    aspect: 'aspect-[16/9] md:aspect-[21/9]',
     composition: 'full'
   },
   {
@@ -91,12 +136,13 @@ export const projects: Project[] = [
     categories: ['motion', 'digital'],
     discipline: 'Creative Technology',
     year: '2025',
+    client: 'Orbital Eyewear',
     summary:
       'A real-time generative system driving the in-store screens of a luxury eyewear brand.',
     image: '/images/work-orbital.jpg',
     alt: 'Curved architectural surface traced with flowing lines under soft light — Orbital system',
-    aspect: 'aspect-[3/4]',
-    composition: 'right'
+    aspect: 'aspect-[3/4] md:aspect-[4/5]',
+    composition: 'split'
   },
   {
     id: 'cadence',
@@ -105,12 +151,13 @@ export const projects: Project[] = [
     categories: ['motion', 'web'],
     discipline: 'Motion / Web',
     year: '2024',
+    client: 'Cadence Music Group',
     summary:
       'Editorial platform and motion language for a music publisher with a century of archive.',
     image: '/images/work-cadence.jpg',
     alt: 'Rhythmic bands of light and shadow falling across a wooden interior — Cadence editorial',
     aspect: 'aspect-[16/10]',
-    composition: 'tall-left'
+    composition: 'half-right'
   },
   {
     id: 'praxis',
@@ -119,12 +166,13 @@ export const projects: Project[] = [
     categories: ['digital', 'web'],
     discipline: 'Design System / Web',
     year: '2024',
+    client: 'Praxis Architects',
     summary:
       'A component library and editorial front-end for an architecture practice publishing its own research.',
     image: '/images/work-praxis.jpg',
     alt: 'Steep monochrome stairwell seen from below with strong parallel handrails — Praxis system',
     aspect: 'aspect-[2/3]',
-    composition: 'left'
+    composition: 'tall-left'
   },
   {
     id: 'hollow',
@@ -133,11 +181,12 @@ export const projects: Project[] = [
     categories: ['branding'],
     discipline: 'Typographic Identity',
     year: '2024',
+    client: 'Hollow Type Foundry',
     summary:
       'A typographic identity for an independent type foundry, built entirely from its own letterforms.',
     image: '/images/work-hollow.jpg',
     alt: 'Minimal building exterior with clean geometry and one deep shadow — Hollow identity',
-    aspect: 'aspect-[16/9]',
+    aspect: 'aspect-[4/5] md:aspect-[16/9]',
     composition: 'full'
   },
   {
@@ -147,12 +196,13 @@ export const projects: Project[] = [
     categories: ['motion', 'branding'],
     discipline: 'Brand Film / Motion',
     year: '2023',
+    client: 'Noem Robotics',
     summary:
       'A launch film and motion system for a robotics company that had never shown its own product.',
     image: '/images/work-noem.jpg',
     alt: 'Abstract monochrome architectural detail of overlapping planes — Noem motion still',
     aspect: 'aspect-[16/10]',
-    composition: 'right'
+    composition: 'wide-right'
   }
 ]
 
@@ -260,14 +310,7 @@ export const services: Service[] = [
   }
 ]
 
-/** Compact typographic summary (spec §10). */
-export const serviceSummary = [
-  'Strategy',
-  'Branding',
-  'Digital',
-  'Development',
-  'Motion'
-]
+export const marqueeDisciplines = ['Strategy', 'Branding', 'Digital', 'Motion', 'Development']
 
 /* ------------------------------------------------------------------ */
 /* Process                                                             */
@@ -277,6 +320,7 @@ export interface ProcessStage {
   index: string
   title: string
   body: string
+  image: string
 }
 
 export const processStages: ProcessStage[] = [
@@ -284,31 +328,36 @@ export const processStages: ProcessStage[] = [
     index: '01',
     title: 'Discover',
     body:
-      'We start by listening. Stakeholder interviews, audits, and a brutally honest look at what the brand is versus what it says it is.'
+      'We start by listening. Stakeholder interviews, audits, and a brutally honest look at what the brand is versus what it says it is.',
+    image: '/images/work-praxis.jpg'
   },
   {
     index: '02',
     title: 'Strategy',
     body:
-      'Insight becomes direction. We define positioning, experience principles and success criteria before a single pixel moves.'
+      'Insight becomes direction. We define positioning, experience principles and success criteria before a single pixel moves.',
+    image: '/images/work-hollow.jpg'
   },
   {
     index: '03',
     title: 'Design',
     body:
-      'Identity, interface and motion evolve together. Short loops, real in-browser work — never just static mockups.'
+      'Identity, interface and motion evolve together. Short loops, real in-browser work — never just static mockups.',
+    image: '/images/work-monolith.jpg'
   },
   {
     index: '04',
-    title: 'Build',
+    title: 'Develop',
     body:
-      'Engineering starts on day one, not after sign-off. Clean component architecture, accessibility and performance budgets are non-negotiable.'
+      'Engineering starts on day one, not after sign-off. Clean component architecture, accessibility and performance budgets are non-negotiable.',
+    image: '/images/work-orbital.jpg'
   },
   {
     index: '05',
     title: 'Launch',
     body:
-      'A launch is a beginning. We ship, measure, refine — and hand over a system your team can actually run.'
+      'A launch is a beginning. We ship, measure, refine — and hand over a system your team can actually run.',
+    image: '/images/work-noem.jpg'
   }
 ]
 
@@ -329,6 +378,14 @@ export const stats: Stat[] = [
   { value: 10, suffix: '+', label: 'Years of practice' }
 ]
 
+export const about = {
+  headline: ['WE MAKE', 'BRANDS', 'MATTER.'],
+  body: [
+    'Great work comes from fewer, deeper collaborations — not a production line. We keep the team small, the process honest and the standard uncomfortable.',
+    'If it does not move the work forward, we cut it. That applies to features, pages, meetings and ideas — including our own.'
+  ]
+}
+
 export const principles = [
   {
     index: '01',
@@ -348,42 +405,40 @@ export const principles = [
 ]
 
 /* ------------------------------------------------------------------ */
-/* Words from clients                                                  */
+/* Collaboration — who the studio works with                           */
 /* ------------------------------------------------------------------ */
 
-export interface Testimonial {
-  quote: string
-  name: string
-  role: string
-  company: string
+export interface Audience {
+  index: string
+  title: string
+  body: string
 }
 
-export const testimonials: Testimonial[] = [
+export const audiences: Audience[] = [
   {
-    quote:
-      'VRSN made us look like the company we wanted to become. Twelve months later, we are that company.',
-    name: 'Helena Marques',
-    role: 'Chief Marketing Officer',
-    company: 'Aether Energy'
+    index: '01',
+    title: 'For founders',
+    body: 'Companies that have outgrown their first identity and need the next one to carry real weight.'
   },
   {
-    quote:
-      'The rare studio where the engineers care about the type and the designers care about the frame rate.',
-    name: 'Jonas Reuter',
-    role: 'Founder & CEO',
-    company: 'Monolith Furniture'
+    index: '02',
+    title: 'For culture',
+    body: 'Publishers, labels, institutions and foundries with an archive worth showing properly.'
   },
   {
-    quote:
-      'They said no to half of our ideas, and they were right about every single one. The result speaks for itself.',
-    name: 'Amara Okafor',
-    role: 'Head of Brand',
-    company: 'Cadence Music Group'
+    index: '03',
+    title: 'For products',
+    body: 'Hardware and software that deserve to be seen and felt — not just explained.'
+  },
+  {
+    index: '04',
+    title: 'For ambitious brands',
+    body: 'Anyone who would rather be recognised than described.'
   }
 ]
 
 /* ------------------------------------------------------------------ */
-/* Clients — placeholder names (spec §12)                              */
+/* Clients — placeholder roster                                        */
 /* ------------------------------------------------------------------ */
 
 export interface Client {

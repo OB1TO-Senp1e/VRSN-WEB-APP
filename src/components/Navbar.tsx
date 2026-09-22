@@ -5,82 +5,83 @@ import { EASE } from '../lib/motion'
 import MobileMenu from './MobileMenu'
 
 /**
- * Studio navigation (spec §01). Sits in the page margin rather than in a
- * chrome bar: no border, no pill, no floating card. On scroll it tightens
- * and picks up a faint blurred ground so type stays legible over imagery.
+ * Studio navigation. Transparent and set in the page margin at rest;
+ * on scroll it tightens, picks up a faint blurred ground and a hairline.
  */
-export default function Navbar() {
+export default function Navbar({ ready = true }: { ready?: boolean }) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const { scrollY } = useScroll()
 
   useMotionValueEvent(scrollY, 'change', (v) => {
-    const next = v > 48
+    const next = v > 40
     if (next !== scrolled) setScrolled(next)
   })
+
+  const solid = scrolled && !open
 
   return (
     <>
       <motion.header
-        initial={{ opacity: 0, y: -16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: EASE, delay: 0.35 }}
+        initial={{ opacity: 0, y: -12 }}
+        animate={ready ? { opacity: 1, y: 0 } : { opacity: 0, y: -12 }}
+        transition={{ duration: 1, ease: EASE, delay: 0.2 }}
         className="fixed inset-x-0 top-0 z-[74]"
       >
-        {/* Ground: fades in on scroll only */}
+        {/* Ground */}
         <motion.div
           aria-hidden="true"
-          className="absolute inset-0 backdrop-blur-lg"
-          animate={{ opacity: scrolled && !open ? 1 : 0 }}
-          transition={{ duration: 0.7, ease: EASE }}
-          style={{
-            background:
-              'linear-gradient(to bottom, rgba(11,11,12,0.88) 0%, rgba(11,11,12,0.62) 62%, rgba(11,11,12,0) 100%)'
-          }}
+          className="absolute inset-0 border-b border-[var(--border)] bg-[rgba(10,10,10,0.72)] backdrop-blur-md"
+          animate={{ opacity: solid ? 1 : 0 }}
+          transition={{ duration: 0.6, ease: EASE }}
         />
 
         <motion.div
-          className="shell relative flex items-center justify-between"
-          animate={{
-            paddingTop: scrolled ? '0.95rem' : '1.75rem',
-            paddingBottom: scrolled ? '0.95rem' : '1.75rem'
-          }}
-          transition={{ duration: 0.8, ease: EASE }}
+          className="shell relative grid grid-cols-2 items-center lg:grid-cols-12"
+          animate={{ height: solid ? '3.5rem' : '4.75rem' }}
+          transition={{ duration: 0.7, ease: EASE }}
         >
           {/* Wordmark */}
           <a
             href="#top"
-            className="display shrink-0 leading-none text-bone"
+            className="display inline-flex items-baseline text-[1.0625rem] leading-none text-bone lg:col-span-3"
             aria-label={`${studio.name} — back to top`}
           >
-            <motion.span
-              className="inline-block"
-              animate={{ fontSize: scrolled ? '1.0625rem' : '1.1875rem' }}
-              transition={{ duration: 0.8, ease: EASE }}
-            >
-              {studio.name}
-              <span className="text-accent">{studio.mark}</span>
-            </motion.span>
+            {studio.name}
+            <span className="text-accent">{studio.mark}</span>
           </a>
 
+          {/* Studio line — desktop only, fades on scroll */}
+          <motion.p
+            className="t-meta hidden lg:col-span-4 lg:block"
+            animate={{ opacity: solid ? 0 : 1 }}
+            transition={{ duration: 0.5, ease: EASE }}
+            aria-hidden={solid}
+          >
+            {studio.positioning} — {studio.disciplines}
+          </motion.p>
+
           {/* Desktop navigation */}
-          <nav className="hidden items-center gap-10 lg:flex" aria-label="Primary">
+          <nav
+            className="hidden items-center justify-end gap-9 lg:col-span-5 lg:flex"
+            aria-label="Primary"
+          >
             {navLinks.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
-                className="u-link text-[0.8125rem] font-medium tracking-[0.02em] text-bone-dim transition-colors duration-500 hover:text-bone"
+                className="u-link t-meta !text-bone-dim transition-colors duration-500 hover:!text-bone"
               >
                 {l.label}
               </a>
             ))}
-            <span className="h-3 w-px bg-[var(--border-strong)]" aria-hidden="true" />
             <a
               href="#contact"
               data-cursor="talk"
-              className="u-link text-[0.8125rem] font-semibold tracking-[0.02em] text-bone"
+              className="e-link !pb-[0.3rem] !text-[0.6875rem] md:!text-[0.75rem]"
             >
-              Let's Talk
+              <span>Let's Talk</span>
+              <span className="e-link__arrow" aria-hidden="true">→</span>
             </a>
           </nav>
 
@@ -90,18 +91,18 @@ export default function Navbar() {
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
             aria-controls="mobile-menu"
-            className="relative z-[76] -mr-1 flex items-center gap-2.5 py-1 pl-3 text-[0.6875rem] font-semibold uppercase tracking-[0.2em] text-bone lg:hidden"
+            className="t-meta relative z-[76] -mr-2 flex items-center justify-end gap-3 py-2 pl-3 pr-2 !text-bone lg:hidden"
           >
             <span>{open ? 'Close' : 'Menu'}</span>
             <span className="flex w-5 flex-col gap-[5px]" aria-hidden="true">
               <motion.span
-                className="block h-[1.5px] w-full origin-center bg-bone"
-                animate={open ? { rotate: 45, y: 3.25 } : { rotate: 0, y: 0 }}
+                className="block h-px w-full origin-center bg-bone"
+                animate={open ? { rotate: 45, y: 3 } : { rotate: 0, y: 0 }}
                 transition={{ duration: 0.45, ease: EASE }}
               />
               <motion.span
-                className="block h-[1.5px] w-full origin-center bg-bone"
-                animate={open ? { rotate: -45, y: -3.25 } : { rotate: 0, y: 0 }}
+                className="block h-px w-full origin-center bg-bone"
+                animate={open ? { rotate: -45, y: -3 } : { rotate: 0, y: 0 }}
                 transition={{ duration: 0.45, ease: EASE }}
               />
             </span>
