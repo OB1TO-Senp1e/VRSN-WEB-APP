@@ -12,7 +12,9 @@ export const studio = {
   email: 'hello@vrsn.studio',
   location: 'Working worldwide',
   timezone: 'GMT+0 — GMT+8',
-  founded: '2016'
+  founded: '2016',
+  /** Replace with the real address when you want it public. */
+  addressNote: 'Remote-first — meetings in person on request'
 } as const
 
 /* ------------------------------------------------------------------ */
@@ -21,25 +23,33 @@ export const studio = {
 
 export const hero = {
   label: 'Independent creative studio',
-  headline: ['EVERY BRAND', 'HAS A BETTER', 'VERSION.'],
+  /** Lines of the headline. `em` marks the serif-italic word. */
+  headline: [
+    { text: 'EVERY BRAND' },
+    { text: 'HAS A BETTER' },
+    { text: 'VERSION.', em: 'Version' }
+  ],
   /** Short positioning under the headline. */
   positioning:
-    'VRSN is an independent studio for brand identity, digital experience and motion. We find the version of a company people actually remember — then build it, end to end.',
+    'We are an independent studio for brand identity, digital experience and motion. We find the version of a company people actually remember — then build it, end to end.',
   cta: 'Start a project'
 }
 
 /** Scroll-scrubbed manifesto. Words in `emphasis` resolve to the accent. */
 export const manifesto = {
+  lines: ['DESIGN', 'IS NOT', 'DECORATION.'],
+  em: 'Decoration',
   text:
-    'A brand is not a logo, a palette or a deck. It is the residue left behind after every encounter. So we design the encounters.',
-  emphasis: ['residue', 'encounters.']
+    'A brand is not a logo, a palette or a deck. It is the residue left behind after every encounter. So we design the encounters — the first visit, the second look, the moment someone decides to remember you.',
+  emphasis: ['residue', 'encounters']
 }
 
 export const statement = {
-  headline: ['WE TURN', 'IDEAS INTO', 'IDENTITIES.'],
+  headline: ['WE MAKE', 'IDEAS', 'VISIBLE.'],
+  em: 'Visible',
   body: [
     'VRSN is an independent practice for companies that would rather be recognised than described. We work in three moves — find the idea, give it a form, then build it properly.',
-    `Founded in ${studio.founded}. Small team by design, led by the people who actually make the work.`
+    'Small team by design, led by the people who actually make the work.'
   ]
 }
 
@@ -79,7 +89,6 @@ export interface Project {
   alt: string
   aspect: string
   composition: Composition
-  award?: string
 }
 
 export const projects: Project[] = [
@@ -96,8 +105,7 @@ export const projects: Project[] = [
     image: '/images/work-aether.jpg',
     alt: 'Angular concrete stairwell cut by hard diagonal shadows — Aether brand campaign image',
     aspect: 'aspect-[4/5]',
-    composition: 'feature',
-    award: 'Site of the Day'
+    composition: 'feature'
   },
   {
     id: 'monolith',
@@ -126,7 +134,7 @@ export const projects: Project[] = [
       'A restrained identity and packaging system for a fragrance house built on a single note.',
     image: '/images/work-halcyon.jpg',
     alt: 'Wide monochrome modernist facade with deep repeating window recesses — Halcyon identity',
-    aspect: 'aspect-[16/9] md:aspect-[21/9]',
+    aspect: 'aspect-[4/3] md:aspect-[21/9]',
     composition: 'full'
   },
   {
@@ -311,6 +319,7 @@ export const services: Service[] = [
 ]
 
 export const marqueeDisciplines = ['Strategy', 'Branding', 'Digital', 'Motion', 'Development']
+export const marqueeSignature = ['Every idea has a version', 'VRSN®']
 
 /* ------------------------------------------------------------------ */
 /* Process                                                             */
@@ -365,21 +374,17 @@ export const processStages: ProcessStage[] = [
 /* About                                                               */
 /* ------------------------------------------------------------------ */
 
-export interface Stat {
-  value: number
-  suffix: string
-  label: string
-}
-
-export const stats: Stat[] = [
-  { value: 50, suffix: '+', label: 'Projects shipped' },
-  { value: 20, suffix: '+', label: 'Global clients' },
-  { value: 8, suffix: '', label: 'Disciplines' },
-  { value: 10, suffix: '+', label: 'Years of practice' }
-]
-
 export const about = {
-  headline: ['WE MAKE', 'BRANDS', 'MATTER.'],
+  label: 'The studio',
+  headline: ['A SMALL', 'STUDIO WITH', 'A LONG MEMORY.'],
+  em: 'Memory',
+  /** Facts we can state without inventing figures. */
+  facts: [
+    { label: 'Practice', value: 'Independent' },
+    { label: 'Team', value: 'Small, senior' },
+    { label: 'Disciplines', value: 'Brand · Web · Motion' },
+    { label: 'Working', value: studio.location }
+  ],
   body: [
     'Great work comes from fewer, deeper collaborations — not a production line. We keep the team small, the process honest and the standard uncomfortable.',
     'If it does not move the work forward, we cut it. That applies to features, pages, meetings and ideas — including our own.'
@@ -414,6 +419,11 @@ export interface Audience {
   body: string
 }
 
+export const collaboration = {
+  label: 'Who we work with',
+  intro: 'We keep the roster short so every project gets the people who run the studio.'
+}
+
 export const audiences: Audience[] = [
   {
     index: '01',
@@ -438,27 +448,6 @@ export const audiences: Audience[] = [
 ]
 
 /* ------------------------------------------------------------------ */
-/* Clients — placeholder roster                                        */
-/* ------------------------------------------------------------------ */
-
-export interface Client {
-  name: string
-  sector: string
-}
-
-/** Placeholder roster — replace with real client names before launch. */
-export const clients: Client[] = [
-  { name: 'Aether Energy', sector: 'Climate Tech' },
-  { name: 'Monolith', sector: 'Furniture' },
-  { name: 'Cadence Music Group', sector: 'Publishing' },
-  { name: 'Halcyon', sector: 'Fragrance' },
-  { name: 'Praxis Architects', sector: 'Architecture' },
-  { name: 'Noem Robotics', sector: 'Hardware' },
-  { name: 'Northwind', sector: 'Logistics' },
-  { name: 'Sable', sector: 'Hospitality' }
-]
-
-/* ------------------------------------------------------------------ */
 /* Navigation                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -469,10 +458,10 @@ export const navLinks = [
 ]
 
 export const mobileNavLinks = [
-  { label: 'Work', href: '#work' },
-  { label: 'About', href: '#about' },
-  { label: 'Services', href: '#services' },
-  { label: 'Contact', href: '#contact' }
+  { index: '01', label: 'Work', href: '#work' },
+  { index: '02', label: 'About', href: '#about' },
+  { index: '03', label: 'Services', href: '#services' },
+  { index: '04', label: 'Contact', href: '#contact' }
 ]
 
 export const socials = [

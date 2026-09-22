@@ -6,16 +6,16 @@ type Mode = 'hidden' | 'dot' | 'arrow' | 'view' | 'talk'
 
 /** Per-mode geometry & label. */
 const MODES: Record<Exclude<Mode, 'hidden'>, { size: number; label: string }> = {
-  dot: { size: 9, label: '' },
-  arrow: { size: 42, label: '→' },
+  dot: { size: 10, label: '' },
+  arrow: { size: 44, label: '→' },
   view: { size: 104, label: 'VIEW →' },
-  talk: { size: 116, label: "LET'S TALK" }
+  talk: { size: 120, label: "LET'S TALK →" }
 }
 
 /**
- * Minimal custom cursor (spec §18). Fine pointers only; disabled for
- * touch, tablets and prefers-reduced-motion. Uses mix-blend-difference
- * so it reads on both the dark shell and the inverted warm-white bands.
+ * Minimal custom cursor. Fine pointers only; disabled for touch,
+ * tablets and prefers-reduced-motion. Uses mix-blend-difference so
+ * the same element reads as ink on paper and paper on ink.
  *
  * Opt in from any element with:
  *   data-cursor="view" | "talk" | "arrow"
@@ -83,7 +83,7 @@ export default function CustomCursor() {
   return (
     <motion.div
       aria-hidden="true"
-      className="pointer-events-none fixed left-0 top-0 z-[100] flex items-center justify-center rounded-full bg-[#f2efe9] mix-blend-difference"
+      className="pointer-events-none fixed left-0 top-0 z-[100] flex items-center justify-center rounded-full bg-[#f4f1eb] mix-blend-difference"
       style={{ x: sx, y: sy, translateX: '-50%', translateY: '-50%' }}
       animate={{
         width: active.size,
@@ -93,11 +93,11 @@ export default function CustomCursor() {
       transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
     >
       <motion.span
-        className="select-none whitespace-nowrap font-semibold text-[#0b0b0c]"
+        className="select-none whitespace-nowrap font-medium text-[#0e0e0d] [font-family:var(--font-mono)]"
         animate={{
           opacity: isLabelled ? 1 : 0,
-          fontSize: mode === 'arrow' ? '0.95rem' : '0.625rem',
-          letterSpacing: mode === 'arrow' ? '0em' : '0.16em'
+          fontSize: mode === 'arrow' ? '1rem' : '0.625rem',
+          letterSpacing: mode === 'arrow' ? '0em' : '0.14em'
         }}
         transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       >

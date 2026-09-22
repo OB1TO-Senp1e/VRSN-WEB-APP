@@ -9,8 +9,8 @@ interface ProjectFilterProps {
 }
 
 /**
- * Editorial filters (spec §08) — a typographic row with a sliding
- * indicator rule. No pills, no boxes, no active-state fills.
+ * Editorial filters — a typographic row with one sliding indicator
+ * rule. No pills, no boxes, no active-state fills.
  */
 export default function ProjectFilter({ active, onChange, counts }: ProjectFilterProps) {
   return (
@@ -24,7 +24,7 @@ export default function ProjectFilter({ active, onChange, counts }: ProjectFilte
       <div
         role="tablist"
         aria-label="Filter work by discipline"
-        className="flex min-w-max items-baseline gap-7 border-b border-[var(--border)] pb-4 md:gap-10"
+        className="flex min-w-max items-baseline gap-7 border-b border-line pb-4 md:gap-10"
       >
         {filters.map((f) => {
           const isActive = active === f.key
@@ -41,26 +41,25 @@ export default function ProjectFilter({ active, onChange, counts }: ProjectFilte
               className="group relative flex items-baseline gap-1.5 pb-1 text-left disabled:opacity-30"
             >
               <span
-                className={`text-[0.8125rem] font-medium uppercase tracking-[0.16em] transition-colors duration-500 ${
-                  isActive ? 'text-bone' : 'text-bone-faint group-hover:text-bone-dim'
+                className={`t-meta transition-colors duration-500 ${
+                  isActive ? '!text-fg' : 'group-hover:!text-fg'
                 }`}
               >
                 {f.label}
               </span>
               <span
-                className={`t-index text-[0.5625rem] tabular-nums transition-colors duration-500 ${
-                  isActive ? 'text-accent' : 'text-bone-faint/60'
+                className={`t-index text-[0.5625rem] transition-colors duration-500 ${
+                  isActive ? 'text-accent' : 'text-muted-2'
                 }`}
                 aria-hidden="true"
               >
                 {String(count).padStart(2, '0')}
               </span>
 
-              {/* Sliding indicator — one shared element across tabs */}
               {isActive && (
                 <motion.span
                   layoutId="filter-indicator"
-                  className="absolute -bottom-[1.05rem] left-0 right-0 h-px bg-accent"
+                  className="absolute -bottom-[1.05rem] left-0 right-0 h-px bg-fg"
                   transition={{ duration: 0.6, ease: EASE }}
                   aria-hidden="true"
                 />

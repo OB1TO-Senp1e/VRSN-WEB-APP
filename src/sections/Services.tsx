@@ -1,14 +1,14 @@
 import { useRef, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
-import { services, serviceSummary, type Service } from '../data/content'
+import { services, type Service } from '../data/content'
 import { EASE, fadeUp, staggerContainer, viewportOnce } from '../lib/motion'
 import { useFinePointer, usePrefersReducedMotion } from '../hooks/useMedia'
 import RevealText from '../components/RevealText'
 
 /**
- * One service as an oversized row (spec §09). On hover the row shifts,
- * the index switches to the accent, the description opens, and a small
- * image preview tracks the cursor.
+ * One service as an oversized editorial row. On hover the title shifts,
+ * the index flips to the accent, the ground washes, and the description
+ * opens beneath. On touch, the row toggles on tap.
  */
 function ServiceRow({
   service,
@@ -32,14 +32,15 @@ function ServiceRow({
   return (
     <motion.li
       variants={fadeUp}
-      className="relative border-b border-[var(--border)]"
+      className="relative border-b border-line"
       onPointerEnter={fine ? onEnter : undefined}
       onPointerLeave={fine ? onLeave : undefined}
     >
-      {/* Ground wash on hover — subtle, no glass, no shadow */}
+      {/* Ground wash on hover — subtle, no shadow */}
       <motion.span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-[calc(var(--gutter)*-1)] inset-y-0 bg-[#101011]"
+        className="pointer-events-none absolute inset-x-[calc(var(--gutter)*-1)] inset-y-0 bg-paper-2"
+        initial={false}
         animate={{ opacity: open ? 1 : 0 }}
         transition={{ duration: 0.6, ease: EASE }}
       />
@@ -51,38 +52,36 @@ function ServiceRow({
           onFocus={fine ? onEnter : undefined}
           aria-expanded={open}
           aria-controls={panelId}
-          className="flex w-full items-baseline gap-5 py-7 text-left md:gap-9 md:py-9"
+          className="grid w-full grid-cols-[2.5rem_1fr_auto] items-baseline gap-4 py-6 text-left md:grid-cols-[6rem_1fr_auto] md:gap-8 md:py-8"
         >
           <span
-            className={`t-index shrink-0 transition-colors duration-500 ${
-              open ? 'text-accent' : 'text-bone-faint'
+            className={`t-index transition-colors duration-500 ${
+              open ? 'text-accent' : 'text-muted-2'
             }`}
           >
-            {service.index}
-          </span>
-          <span className="flex-1">
-            <motion.span
-              className="t-row block"
-              animate={{
-                x: open ? (fine ? 18 : 8) : 0,
-                color: open ? '#f2efe9' : '#8d8a84'
-              }}
-              transition={{ duration: 0.8, ease: EASE }}
-            >
-              {service.title}
-            </motion.span>
+            {open ? `(${service.index})` : service.index}
           </span>
           <motion.span
-            className="t-meta hidden shrink-0 md:block"
-            animate={{ opacity: open ? 1 : 0, x: open ? 0 : 10 }}
+            className="t-row block"
+            initial={false}
+            animate={{ x: open ? (fine ? 20 : 8) : 0 }}
+            transition={{ duration: 0.8, ease: EASE }}
+          >
+            {service.title}
+          </motion.span>
+          <motion.span
+            className="t-meta hidden md:block"
+            initial={false}
+            animate={{ opacity: open ? 1 : 0.35, x: open ? 0 : 10 }}
             transition={{ duration: 0.6, ease: EASE }}
             aria-hidden="true"
           >
-            View →
+            {open ? 'Read →' : service.tags.length + ' areas'}
           </motion.span>
-          {/* Mobile affordance */}
+          {/* Touch affordance */}
           <motion.span
-            className="shrink-0 text-lg leading-none text-bone-faint md:hidden"
+            className="text-xl leading-none text-muted md:hidden"
+            initial={false}
             animate={{ rotate: open ? 45 : 0 }}
             transition={{ duration: 0.5, ease: EASE }}
             aria-hidden="true"
@@ -102,13 +101,11 @@ function ServiceRow({
             transition={{ duration: 0.65, ease: EASE }}
             className="relative overflow-hidden"
           >
-            <div className="grid gap-6 pb-8 pl-9 md:grid-cols-12 md:gap-10 md:pb-10 md:pl-[4.5rem]">
-              <p className="t-body max-w-[52ch] !text-[1rem] md:col-span-6">
-                {service.body}
-              </p>
-              <ul className="flex flex-col gap-1.5 md:col-span-4 md:col-start-8">
+            <div className="grid gap-6 pb-8 pl-[3.5rem] md:grid-cols-12 md:gap-10 md:pb-10 md:pl-[8rem]">
+              <p className="t-body max-w-[52ch] md:col-span-6">{service.body}</p>
+              <ul className="flex flex-wrap gap-x-5 gap-y-1.5 md:col-span-4 md:col-start-8 md:flex-col">
                 {service.tags.map((t) => (
-                  <li key={t} className="t-meta !tracking-[0.14em]">
+                  <li key={t} className="t-meta">
                     {t}
                   </li>
                 ))}
@@ -128,7 +125,7 @@ export default function Services() {
   const [expanded, setExpanded] = useState<number | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
-  /* Cursor-tracked preview */
+  /* Cursor-tracked preview (desktop) */
   const px = useMotionValue(0)
   const py = useMotionValue(0)
   const spx = useSpring(px, { stiffness: 140, damping: 22, mass: 0.5 })
@@ -144,54 +141,53 @@ export default function Services() {
   const showPreview = fine && !reduced && active !== null
 
   return (
-    <section id="services" className="relative py-24 md:py-32 lg:py-40" aria-label="Services">
+    <section id="services" className="section relative" aria-label="Services">
       <div className="shell">
         {/* Header */}
-        <div className="grid gap-9 md:grid-cols-12 md:items-end md:gap-10">
-          <div className="md:col-span-7">
+        <div className="grid gap-9 md:grid-cols-12 md:gap-10">
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewportOnce}
+            className="sec-label md:col-span-3"
+          >
+            <span className="n">( 04 )</span>
+            <span>Services</span>
+          </motion.p>
+
+          <div className="md:col-span-9">
+            <RevealText
+              as="h2"
+              className="t-display"
+              lines={[
+                'WHAT WE',
+                <>
+                  <span className="em">Actually</span> DO.
+                </>
+              ]}
+            />
             <motion.p
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
               viewport={viewportOnce}
-              className="eyebrow mb-7 md:mb-10"
+              className="t-body mt-8 max-w-[40ch] md:mt-10"
             >
-              <span className="text-accent">03</span>
-              <span className="px-3 text-[var(--muted-2)]">/</span>
-              Services
+              Six disciplines, one team. Strategy through to shipped code —
+              without the hand-offs where ideas usually die.
             </motion.p>
-            <RevealText as="h2" className="t-display text-bone" lines={['WHAT WE', 'DO.']} />
           </div>
-
-          {/* Compact typographic summary (spec §10) */}
-          <motion.ul
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={viewportOnce}
-            className="flex flex-wrap gap-x-6 gap-y-1 md:col-span-4 md:col-start-9 md:flex-col md:gap-y-1.5"
-            aria-label="Disciplines"
-          >
-            {serviceSummary.map((s) => (
-              <motion.li
-                key={s}
-                variants={fadeUp}
-                className="text-[0.9375rem] font-medium text-bone-dim md:text-base"
-              >
-                {s}
-              </motion.li>
-            ))}
-          </motion.ul>
         </div>
 
         {/* Rows */}
-        <div ref={listRef} className="relative mt-14 md:mt-24" onPointerMove={onPointerMove}>
+        <div ref={listRef} className="relative mt-16 md:mt-24" onPointerMove={onPointerMove}>
           <motion.ul
             variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
             viewport={viewportOnce}
-            className="border-t border-[var(--border)]"
+            className="border-t border-line"
           >
             {services.map((s, i) => (
               <ServiceRow
@@ -212,8 +208,8 @@ export default function Services() {
               <motion.div
                 key={services[active!].index}
                 aria-hidden="true"
-                className="frame pointer-events-none absolute left-0 top-0 z-[5] aspect-[4/5] w-[14rem] xl:w-[16rem]"
-                style={{ x: spx, y: spy, translateX: '-115%', translateY: '-50%' }}
+                className="frame pointer-events-none absolute left-0 top-0 z-[5] aspect-[4/5] w-[12rem] xl:w-[14rem]"
+                style={{ x: spx, y: spy, translateX: '6rem', translateY: '-50%' }}
                 initial={{ opacity: 0, clipPath: 'inset(100% 0% 0% 0%)' }}
                 animate={{ opacity: 1, clipPath: 'inset(0% 0% 0% 0%)' }}
                 exit={{ opacity: 0, clipPath: 'inset(0% 0% 100% 0%)' }}
@@ -224,7 +220,7 @@ export default function Services() {
                   alt=""
                   loading="lazy"
                   decoding="async"
-                  className="size-full object-cover grayscale"
+                  className="size-full object-cover"
                 />
               </motion.div>
             )}

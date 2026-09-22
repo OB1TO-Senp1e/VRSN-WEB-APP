@@ -1,24 +1,30 @@
 @import "tailwindcss";
 
 /* ============================================================
-   VRSN® — Editorial Design System
-   Near-black · warm-white · neutral gray · one champagne accent.
-   Typography is the visual. Everything else is restraint.
+   VRSN® — Editorial Design System v2
+   Paper ground · ink chapters · one rust accent.
+   Type is the visual. Whitespace is the layout. Everything
+   else is restraint.
    ============================================================ */
 
 :root {
-  --background: #0a0a0a;
-  --background-2: #111111;
-  --surface: #f3f0ea;             /* inverted band */
-  --foreground: #f3f0ea;
-  --muted: #8a8781;
-  --muted-2: #56544f;
-  --accent: #c9a876;
-  --border: rgba(243, 240, 234, 0.10);
-  --border-strong: rgba(243, 240, 234, 0.26);
+  /* Paper (default) */
+  --paper: #f4f1eb;
+  --paper-2: #ebe7df;
+  --ink: #0e0e0d;
+  --ink-2: #161615;
 
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --fg: var(--ink);
+  --bg: var(--paper);
+  --muted: #6f6c66;
+  --muted-2: #a19d95;
+  --accent: #c8441d;
+  --line: rgba(14, 14, 13, 0.12);
+  --line-strong: rgba(14, 14, 13, 0.32);
+
+  --font-sans: "Geist", system-ui, -apple-system, sans-serif;
+  --font-display: "Geist", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -29,18 +35,34 @@
 }
 @media (min-width: 640px)  { :root { --gutter: 2rem; } }
 @media (min-width: 1024px) { :root { --gutter: 3rem; } }
-@media (min-width: 1440px) { :root { --gutter: 4rem; } }
+@media (min-width: 1440px) { :root { --gutter: 4.5rem; } }
+
+/* Ink chapter — flips the token set for a whole section. */
+.chapter-ink {
+  --fg: var(--paper);
+  --bg: var(--ink);
+  --muted: #8f8c85;
+  --muted-2: #56544f;
+  --line: rgba(244, 241, 235, 0.12);
+  --line-strong: rgba(244, 241, 235, 0.34);
+  background: var(--bg);
+  color: var(--fg);
+}
 
 @theme {
-  --color-ink: #0a0a0a;
-  --color-ink-2: #111111;
-  --color-bone: #f3f0ea;
-  --color-bone-dim: #8a8781;
-  --color-bone-faint: #56544f;
-  --color-accent: #c9a876;
-  --color-line: rgba(243, 240, 234, 0.10);
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --color-paper: #f4f1eb;
+  --color-paper-2: #ebe7df;
+  --color-ink: #0e0e0d;
+  --color-ink-2: #161615;
+  --color-accent: #c8441d;
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --font-sans: "Geist", system-ui, sans-serif;
+  --font-display: "Geist", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
   --breakpoint-xs: 30rem;
 }
@@ -49,24 +71,26 @@
    Base
    ============================================================ */
 html {
-  background: var(--background);
+  background: var(--paper);
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
 }
 body {
   font-family: var(--font-sans);
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--fg);
   font-size: 1rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11";
   overflow-x: clip;
 }
 img { max-width: 100%; }
 
-::selection { background: var(--accent); color: var(--background); }
+::selection { background: var(--ink); color: var(--paper); }
+.chapter-ink ::selection { background: var(--paper); color: var(--ink); }
 
 :focus-visible {
   outline: 1.5px solid var(--accent);
@@ -80,8 +104,8 @@ img { max-width: 100%; }
   z-index: 200;
   transform: translateY(-160%);
   transition: transform 0.3s var(--ease-out-expo);
-  background: var(--surface);
-  color: var(--background);
+  background: var(--ink);
+  color: var(--paper);
   padding: 0.6rem 1rem;
   font: 500 0.6875rem/1 var(--font-mono);
   letter-spacing: 0.14em;
@@ -114,58 +138,71 @@ img { max-width: 100%; }
    ============================================================ */
 .display {
   font-family: var(--font-display);
-  font-weight: 620;
+  font-weight: 600;
   line-height: 0.9;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.045em;
+}
+
+/* Serif italic emphasis — the one flourish. */
+.em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  text-transform: none;
 }
 
 /* Hero — clamp(4rem, 10vw, 11rem) */
 .t-hero {
   font-family: var(--font-display);
-  font-weight: 640;
-  font-size: clamp(3.4rem, 10.4vw, 11rem);
+  font-weight: 600;
+  font-size: clamp(3.25rem, 11vw, 11rem);
   line-height: 0.88;
-  letter-spacing: -0.045em;
+  letter-spacing: -0.05em;
   text-transform: uppercase;
 }
 @media (min-width: 640px) { .t-hero { font-size: clamp(4rem, 10vw, 11rem); } }
+.t-hero .em { font-size: 1.04em; line-height: 0.8; }
 
 /* Section heading — clamp(3rem, 7vw, 8rem) */
 .t-display {
   font-family: var(--font-display);
-  font-weight: 620;
-  font-size: clamp(2.75rem, 7.4vw, 8rem);
+  font-weight: 600;
+  font-size: clamp(2.75rem, 7.6vw, 8rem);
   line-height: 0.9;
-  letter-spacing: -0.042em;
+  letter-spacing: -0.045em;
   text-transform: uppercase;
 }
+.t-display .em { font-size: 1.04em; }
 
-/* Mid statement (manifesto body / big paragraph) */
+/* Mid statement */
 .t-statement {
   font-family: var(--font-display);
-  font-weight: 560;
+  font-weight: 500;
   font-size: clamp(1.625rem, 3.6vw, 3.25rem);
-  line-height: 1.04;
+  line-height: 1.05;
   letter-spacing: -0.03em;
 }
 
-/* Project / service titles */
-.t-title {
+/* Row / project / service titles */
+.t-row {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(1.75rem, 4.4vw, 4rem);
-  line-height: 0.96;
-  letter-spacing: -0.035em;
+  font-size: clamp(1.75rem, 4.6vw, 4.25rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
 }
 
-/* Body — 18–20px */
+/* Body — 18–21px */
 .t-body {
   font-size: 1.0625rem;
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--muted);
-  letter-spacing: -0.006em;
+  letter-spacing: -0.008em;
 }
-@media (min-width: 768px) { .t-body { font-size: 1.1875rem; line-height: 1.55; } }
+@media (min-width: 768px) { .t-body { font-size: 1.1875rem; line-height: 1.5; } }
+.t-body-lg { font-size: 1.125rem; line-height: 1.5; letter-spacing: -0.01em; }
+@media (min-width: 768px) { .t-body-lg { font-size: 1.3125rem; } }
 .t-body-sm { font-size: 0.9375rem; line-height: 1.6; color: var(--muted); }
 
 /* Metadata — mono, 11–13px */
@@ -199,11 +236,11 @@ img { max-width: 100%; }
   font-variant-numeric: tabular-nums;
 }
 
-/* Section header pattern: "01 / Positioning" */
+/* Section label pattern: "( 01 )  Work" */
 .sec-label {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
+  align-items: baseline;
+  gap: 0.875rem;
   font-family: var(--font-mono);
   font-size: 0.6875rem;
   font-weight: 500;
@@ -212,7 +249,6 @@ img { max-width: 100%; }
   color: var(--muted);
 }
 .sec-label .n { color: var(--accent); }
-.sec-label .l { width: 2rem; height: 1px; background: var(--border-strong); }
 
 /* ============================================================
    Layout
@@ -222,12 +258,7 @@ img { max-width: 100%; }
 .section { padding-block: clamp(6rem, 12vw, 11rem); }
 .section-sm { padding-block: clamp(4rem, 8vw, 7rem); }
 
-.rule { border-top: 1px solid var(--border); }
-
-.invert-band { background: var(--surface); color: var(--background); }
-.invert-band .t-body, .invert-band .t-body-sm { color: #4a4843; }
-.invert-band .t-meta, .invert-band .eyebrow, .invert-band .sec-label { color: #75726c; }
-.invert-band .sec-label .l { background: rgba(10,10,10,0.25); }
+.rule { border-top: 1px solid var(--line); }
 
 /* ============================================================
    Editorial link — underline + arrow, never a pill
@@ -242,7 +273,7 @@ img { max-width: 100%; }
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--foreground);
+  color: var(--fg);
   padding-bottom: 0.45rem;
 }
 .e-link::after {
@@ -260,6 +291,11 @@ img { max-width: 100%; }
   transform: scaleX(0);
   transform-origin: right;
 }
+.e-link > span:first-child {
+  display: inline-block;
+  transition: transform 0.6s var(--ease-out-expo);
+}
+.e-link:hover > span:first-child { transform: translateX(0.15rem); }
 .e-link__arrow { display: inline-block; transition: transform 0.6s var(--ease-out-expo); }
 .e-link:hover .e-link__arrow, .e-link:focus-visible .e-link__arrow { transform: translateX(0.45rem); }
 
@@ -282,9 +318,10 @@ img { max-width: 100%; }
 .frame {
   position: relative;
   overflow: hidden;
-  background: var(--background-2);
+  background: var(--paper-2);
   transform: translateZ(0);
 }
+.chapter-ink .frame { background: var(--ink-2); }
 .frame img {
   display: block;
   width: 100%;
@@ -292,18 +329,21 @@ img { max-width: 100%; }
   object-fit: cover;
 }
 
-/* Interactive rows (services / clients / process) */
-.row-hover { transition: color 0.5s var(--ease-out-expo), transform 0.8s var(--ease-out-expo); }
-
 /* ============================================================
    Marquee
    ============================================================ */
 .marquee-track { display: flex; width: max-content; will-change: transform; }
 
+/* Outline type — for marquee / decorative statements */
+.t-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--line-strong);
+}
+
 /* ============================================================
    Scrollbar
    ============================================================ */
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--background); }
-::-webkit-scrollbar-thumb { background: #232323; border: 2px solid var(--background); border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: #333; }
+::-webkit-scrollbar-track { background: var(--paper); }
+::-webkit-scrollbar-thumb { background: #cfcac0; border: 2px solid var(--paper); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #b5afa4; }

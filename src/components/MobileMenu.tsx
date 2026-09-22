@@ -9,13 +9,13 @@ interface MobileMenuProps {
 }
 
 /**
- * Full-screen navigation overlay (spec §01). Staggered masked
- * typography, numbered items, and a focus trap while open.
+ * Full-screen editorial overlay on ink. Numbered, oversized links
+ * slide up from behind a hard edge; contact details settle in after.
+ * Focus is trapped while open; Escape closes.
  */
 export default function MobileMenu({ open, onClose }: MobileMenuProps) {
   const panelRef = useRef<HTMLDivElement>(null)
 
-  /* Lock scroll + trap focus while open */
   useEffect(() => {
     if (!open) return
     const prevOverflow = document.body.style.overflow
@@ -61,7 +61,7 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
           role="dialog"
           aria-modal="true"
           aria-label="Site navigation"
-          className="fixed inset-0 z-[72] flex flex-col justify-between bg-ink shell pb-10 pt-28 lg:hidden"
+          className="chapter-ink shell fixed inset-0 z-[72] flex flex-col justify-between pb-8 pt-24 lg:hidden"
           initial={{ clipPath: 'inset(0 0 100% 0)' }}
           animate={{ clipPath: 'inset(0 0 0% 0)' }}
           exit={{ clipPath: 'inset(0 0 100% 0)', transition: { duration: 0.6, ease: EASE } }}
@@ -70,7 +70,7 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
           <nav aria-label="Primary">
             <ul>
               {mobileNavLinks.map((l, i) => (
-                <li key={l.href} className="border-b border-[var(--border)]">
+                <li key={l.href} className="border-b border-line">
                   <div className="overflow-hidden">
                     <motion.a
                       href={l.href}
@@ -81,8 +81,8 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
                       exit={{ y: '110%', transition: { duration: 0.35, ease: EASE } }}
                       transition={{ duration: 0.9, ease: EASE, delay: 0.16 + i * 0.075 }}
                     >
-                      <span className="t-index text-accent">0{i + 1}</span>
-                      <span className="display text-[clamp(2.75rem,15vw,4.5rem)] text-bone">
+                      <span className="t-index text-accent">{l.index}</span>
+                      <span className="display text-[clamp(2.75rem,15vw,4.75rem)] uppercase text-paper">
                         {l.label}
                       </span>
                     </motion.a>
@@ -97,32 +97,35 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, transition: { duration: 0.25 } }}
             transition={{ delay: 0.5, duration: 0.8, ease: EASE }}
-            className="space-y-7"
+            className="grid gap-8 xs:grid-cols-2"
           >
             <div>
               <p className="eyebrow mb-2">Start a project</p>
               <a
                 href={`mailto:${studio.email}`}
                 onClick={onClose}
-                className="u-link display text-[clamp(1.25rem,6vw,1.75rem)] text-bone"
+                className="u-link display text-[clamp(1.125rem,5.5vw,1.5rem)] normal-case tracking-[-0.02em] text-paper"
               >
                 {studio.email}
               </a>
             </div>
-            <ul className="flex flex-wrap gap-x-6 gap-y-2">
-              {socials.map((s) => (
-                <li key={s.label}>
-                  <a
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="u-link t-meta text-bone-dim"
-                  >
-                    {s.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <div>
+              <p className="eyebrow mb-2">Elsewhere</p>
+              <ul className="flex flex-wrap gap-x-5 gap-y-1.5">
+                {socials.map((s) => (
+                  <li key={s.label}>
+                    <a
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="u-link t-meta"
+                    >
+                      {s.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </motion.div>
         </motion.div>
       )}
