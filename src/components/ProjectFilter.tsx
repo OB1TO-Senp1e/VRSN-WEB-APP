@@ -9,9 +9,9 @@ interface ProjectFilterProps {
 }
 
 /**
- * Editorial filters — a typographic row with one sliding indicator
- * rule. No pills, no boxes, no active-state fills. Scrolls
- * horizontally on narrow screens.
+ * Editorial filters — a typographic row with one sliding indicator rule.
+ * No pills, no boxes, no active-state fills. Scrolls horizontally on
+ * narrow screens so the row keeps its proportions instead of wrapping.
  */
 export default function ProjectFilter({ active, onChange, counts }: ProjectFilterProps) {
   return (
@@ -20,6 +20,7 @@ export default function ProjectFilter({ active, onChange, counts }: ProjectFilte
       initial="hidden"
       whileInView="visible"
       viewport={viewportOnce}
+      data-scroll-surface
       className="-mx-[var(--gutter)] overflow-x-auto px-[var(--gutter)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
     >
       <div

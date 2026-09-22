@@ -3,12 +3,17 @@ import type { Variants, Transition } from 'framer-motion'
 /**
  * Motion language — slow, smooth, confident, intentional.
  * Only opacity / transform / clip-path. No bounce, no spin, no float.
+ *
+ * The rule for the whole site: motion explains hierarchy — what matters
+ * arrives first, what supports it follows. Nothing moves for decoration.
  */
 
 /** Expo-out — the studio's signature curve. */
 export const EASE: Transition['ease'] = [0.16, 1, 0.3, 1]
 /** Softer in-out, for reversible states. */
 export const EASE_IO: Transition['ease'] = [0.65, 0, 0.35, 1]
+/** Quart-out — used for pointer-tracked transforms where expo feels late. */
+export const EASE_QUART: Transition['ease'] = [0.22, 1, 0.36, 1]
 
 export const DUR = {
   fast: 0.4,
@@ -106,12 +111,36 @@ export const hoverSpring: Transition = {
   mass: 0.6
 }
 
+/** Pointer-tracked media spring — soft enough to trail the cursor. */
+export const pointerSpring: Transition = {
+  type: 'spring',
+  stiffness: 150,
+  damping: 24,
+  mass: 0.5
+}
+
 /**
- * Standard "reveal on scroll into view" prop bundle.
- * Kept as a helper so every section animates on the same contract.
+ * Shared "reveal on scroll into view" prop bundle.
+ * Every section animates on the same contract, so the page reads as one
+ * system rather than a set of independently animated blocks.
  */
 export const inViewOnce = {
   initial: 'hidden',
   whileInView: 'visible',
   viewport: viewportOnce
 } as const
+
+/**
+ * Pointer-tracking helper. Given a motion value pair and a pointer event
+ * on the element itself, returns normalised offsets from centre in the
+ * range [-1, 1] — the basis of every "image moves with the cursor" effect
+ * on the site, so they all share one feel.
+ */
+export function centreOffset(
+  e: { clientX: number; clientY: number },
+  rect: DOMRect
+): { nx: number; ny: number } {
+  const nx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
+  const ny = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)
+  return { nx: Math.max(-1.5, Math.min(1.5, nx)), ny: Math.max(-1.5, Math.min(1.5, ny)) }
+}

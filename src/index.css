@@ -1,11 +1,18 @@
 @import "tailwindcss";
 
 /* ============================================================
-   VRSN® — Editorial design system v3
+   VRSN® — Editorial design system v4
    ------------------------------------------------------------
    Paper ground, ink chapters, one rust accent.
    Typography is the visual. Whitespace is the layout.
-   Everything else is restraint.
+
+   What v4 adds
+   ------------
+   • A kinetic type scale sized for full-bleed editorial display
+     (.t-mega, .t-kinetic) with optical letter-spacing steps.
+   • Scroll-chapter tokens so the nav can sit on either ground.
+   • A stable gutter + nav-height contract used by every section.
+   • A tiny motion vocabulary: ease-expo out, ease-io for state.
 
    Cascade strategy
    ----------------
@@ -20,6 +27,7 @@
   /* Paper — the default chapter */
   --paper: #f4f1eb;
   --paper-2: #eae6de;
+  --paper-3: #e0dbd1;
   --ink: #0e0e0d;
   --ink-2: #171716;
 
@@ -28,7 +36,9 @@
   --muted: #6f6c66;
   --muted-2: #a29e96;
   --accent: #c8441d;
+  --accent-deep: #a63614;
   --line: rgba(14, 14, 13, 0.12);
+  --line-soft: rgba(14, 14, 13, 0.07);
   --line-strong: rgba(14, 14, 13, 0.3);
   --frame: #e7e3da;
 
@@ -41,19 +51,25 @@
   /* Motion */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-quart: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Layout */
+  /* Layout contract — every section obeys the same gutter + nav height */
   --gutter: 1.25rem;
-  --nav-h: 4.5rem;
+  --nav-h: 4.25rem;
+  --nav-h-solid: 3.5rem;
 }
+
 @media (min-width: 640px) {
-  :root { --gutter: 2rem; }
+  :root {
+    --gutter: 2rem;
+    --nav-h: 4.5rem;
+  }
 }
 @media (min-width: 1024px) {
-  :root { --gutter: 3rem; }
-}
-@media (min-width: 1440px) {
-  :root { --gutter: 4.75rem; }
+  :root {
+    --gutter: clamp(2.5rem, 4vw, 4.75rem);
+    --nav-h: 5rem;
+  }
 }
 
 /* Ink chapter — flips the whole token set for a section. */
@@ -63,7 +79,9 @@
   --muted: #918e87;
   --muted-2: #57554f;
   --accent: #e0562a;
+  --accent-deep: #f0744a;
   --line: rgba(244, 241, 235, 0.13);
+  --line-soft: rgba(244, 241, 235, 0.07);
   --line-strong: rgba(244, 241, 235, 0.34);
   --frame: #1d1d1c;
 
@@ -78,6 +96,7 @@
   --color-muted: #918e87;
   --color-muted-2: #57554f;
   --color-line: rgba(244, 241, 235, 0.13);
+  --color-line-soft: rgba(244, 241, 235, 0.07);
   --color-line-strong: rgba(244, 241, 235, 0.34);
   --color-accent: #e0562a;
 }
@@ -86,6 +105,7 @@
   /* Absolute colours — never flip */
   --color-accent: #c8441d;
   --color-paper-2: #eae6de;
+  --color-paper-3: #e0dbd1;
   --color-ink-2: #171716;
 
   /* Chapter-relative colours — overridden by .chapter-ink above */
@@ -95,6 +115,7 @@
   --color-muted: #6f6c66;
   --color-muted-2: #a29e96;
   --color-line: rgba(14, 14, 13, 0.12);
+  --color-line-soft: rgba(14, 14, 13, 0.07);
   --color-line-strong: rgba(14, 14, 13, 0.3);
 
   --font-sans: "Geist", system-ui, sans-serif;
@@ -134,8 +155,8 @@ video {
 }
 
 ::selection {
-  background: var(--fg);
-  color: var(--bg);
+  background: var(--accent);
+  color: var(--paper);
 }
 
 :focus-visible {
@@ -176,6 +197,12 @@ video {
   }
 }
 
+/* Horizontal drag / marquee surfaces never paint a native caret. */
+[data-drag] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 /* ============================================================
    Reduced motion
    ============================================================ */
@@ -188,6 +215,11 @@ video {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  /* Kinetic type must still read as a legible block, never a frozen
+     off-centre fragment. */
+  [data-kinetic] {
+    transform: none !important;
   }
 }
 
@@ -212,32 +244,35 @@ video {
      Typography — the primary design tool
      ========================================================== */
 
-  /* Hero — clamp(4rem, 10vw, 11rem) */
+  /* Hero — owns the viewport. */
   .t-hero {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(3.5rem, 12vw, 11rem);
-    line-height: 0.86;
+    font-size: clamp(3.25rem, 12.2vw, 11.5rem);
+    line-height: 0.84;
     letter-spacing: -0.05em;
     text-transform: uppercase;
   }
   @media (min-width: 640px) {
-    .t-hero { font-size: clamp(4rem, 10vw, 11rem); }
+    .t-hero {
+      font-size: clamp(4rem, 10.4vw, 11.5rem);
+      line-height: 0.82;
+    }
   }
-  .t-hero .em { font-size: 1.05em; line-height: 0.78; }
+  .t-hero .em { font-size: 1.04em; line-height: 0.78; }
 
-  /* Section titles — clamp(3rem, 7vw, 8rem) */
+  /* Section titles */
   .t-display {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(2.75rem, 7.4vw, 8rem);
+    font-size: clamp(2.625rem, 7.4vw, 8rem);
     line-height: 0.88;
     letter-spacing: -0.045em;
     text-transform: uppercase;
   }
-  .t-display .em { font-size: 1.05em; }
+  .t-display .em { font-size: 1.04em; }
 
-  /* Oversized statement — between display and hero */
+  /* Oversized statement — between display and mega */
   .t-mega {
     font-family: var(--font-display);
     font-weight: 600;
@@ -246,14 +281,27 @@ video {
     letter-spacing: -0.055em;
     text-transform: uppercase;
   }
-  .t-mega .em { font-size: 1.05em; }
+  .t-mega .em { font-size: 1.04em; }
+
+  /* Kinetic — the collaboration installation. One line, full bleed.
+     Sized so a single line can travel horizontally without wrapping. */
+  .t-kinetic {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(3.75rem, 15.5vw, 16rem);
+    line-height: 0.86;
+    letter-spacing: -0.055em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .t-kinetic .em { font-size: 1.03em; }
 
   /* Mid statement */
   .t-statement {
     font-family: var(--font-display);
     font-weight: 500;
     font-size: clamp(1.5rem, 3.4vw, 3rem);
-    line-height: 1.06;
+    line-height: 1.08;
     letter-spacing: -0.03em;
   }
 
@@ -264,6 +312,15 @@ video {
     font-size: clamp(1.625rem, 4.4vw, 4rem);
     line-height: 0.95;
     letter-spacing: -0.04em;
+  }
+
+  /* Process / smaller editorial row */
+  .t-row-sm {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 3.2vw, 2.75rem);
+    line-height: 0.98;
+    letter-spacing: -0.038em;
   }
 
   /* Generic display helper */

@@ -2,23 +2,27 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
 import { useFinePointer, usePrefersReducedMotion } from '../hooks/useMedia'
 
-type Mode = 'hidden' | 'dot' | 'arrow' | 'view' | 'talk'
+type Mode = 'hidden' | 'dot' | 'arrow' | 'view' | 'talk' | 'explore' | 'drag'
 
-/** Per-mode geometry & label. */
+/** Per-mode geometry & label. Kept small — this is a hint, not an ornament. */
 const MODES: Record<Exclude<Mode, 'hidden'>, { size: number; label: string }> = {
-  dot: { size: 10, label: '' },
-  arrow: { size: 44, label: '→' },
-  view: { size: 104, label: 'VIEW →' },
-  talk: { size: 120, label: "LET'S TALK →" }
+  dot: { size: 8, label: '' },
+  arrow: { size: 42, label: '→' },
+  view: { size: 96, label: 'VIEW →' },
+  explore: { size: 100, label: 'EXPLORE →' },
+  talk: { size: 116, label: "LET'S TALK →" },
+  drag: { size: 84, label: 'DRAG' }
 }
 
+const LABELLED: Mode[] = ['arrow', 'view', 'explore', 'talk', 'drag']
+
 /**
- * Minimal custom cursor. Fine pointers only; disabled for touch,
- * tablets and prefers-reduced-motion. Uses mix-blend-difference so
- * the same element reads as ink on paper and paper on ink.
+ * Minimal custom cursor. Fine pointers only; disabled for touch, tablets
+ * and prefers-reduced-motion. Uses mix-blend-difference so the same
+ * element reads as ink on paper and paper on ink — no colour logic.
  *
  * Opt in from any element with:
- *   data-cursor="view" | "talk" | "arrow"
+ *   data-cursor="view" | "explore" | "talk" | "drag" | "arrow"
  */
 export default function CustomCursor() {
   const fine = useFinePointer()
@@ -46,7 +50,9 @@ export default function CustomCursor() {
       const flagged = target.closest<HTMLElement>('[data-cursor]')
       if (flagged) {
         const v = flagged.dataset.cursor
-        if (v === 'view' || v === 'talk' || v === 'arrow') return v
+        if (v === 'view' || v === 'explore' || v === 'talk' || v === 'drag' || v === 'arrow') {
+          return v
+        }
       }
       if (target.closest('a, button, [role="button"], input, textarea, select')) return 'arrow'
       return 'dot'
@@ -59,18 +65,15 @@ export default function CustomCursor() {
       if (next !== modeRef.current) setMode(next)
     }
     const onLeave = () => setMode('hidden')
-    const onDown = () => setMode((m) => m)
 
     window.addEventListener('pointermove', onMove, { passive: true })
     document.documentElement.addEventListener('pointerleave', onLeave)
     window.addEventListener('blur', onLeave)
-    window.addEventListener('pointerdown', onDown, { passive: true })
 
     return () => {
       window.removeEventListener('pointermove', onMove)
       document.documentElement.removeEventListener('pointerleave', onLeave)
       window.removeEventListener('blur', onLeave)
-      window.removeEventListener('pointerdown', onDown)
       document.body.classList.remove('has-custom-cursor')
     }
   }, [enabled, x, y])
@@ -78,13 +81,14 @@ export default function CustomCursor() {
   if (!enabled) return null
 
   const active = mode === 'hidden' ? MODES.dot : MODES[mode]
-  const isLabelled = mode === 'view' || mode === 'talk' || mode === 'arrow'
+  const isLabelled = LABELLED.includes(mode)
 
   return (
     <motion.div
       aria-hidden="true"
       className="pointer-events-none fixed left-0 top-0 z-[100] flex items-center justify-center rounded-full bg-[#f4f1eb] mix-blend-difference"
       style={{ x: sx, y: sy, translateX: '-50%', translateY: '-50%' }}
+      initial={false}
       animate={{
         width: active.size,
         height: active.size,
@@ -94,10 +98,11 @@ export default function CustomCursor() {
     >
       <motion.span
         className="select-none whitespace-nowrap font-medium text-[#0e0e0d] [font-family:var(--font-mono)]"
+        initial={false}
         animate={{
           opacity: isLabelled ? 1 : 0,
-          fontSize: mode === 'arrow' ? '1rem' : '0.625rem',
-          letterSpacing: mode === 'arrow' ? '0em' : '0.14em'
+          fontSize: mode === 'arrow' ? '1rem' : '0.5625rem',
+          letterSpacing: mode === 'arrow' ? '0em' : '0.16em'
         }}
         transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       >

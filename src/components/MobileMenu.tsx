@@ -9,9 +9,12 @@ interface MobileMenuProps {
 }
 
 /**
- * Full-screen editorial overlay on ink. Numbered, oversized links
- * slide up from behind a hard edge; contact details settle in after.
- * Focus is trapped while open; Escape closes.
+ * Full-screen editorial overlay on ink. Numbered, oversized links slide up
+ * from behind a hard edge; contact details settle in after. Focus is
+ * trapped while open; Escape closes.
+ *
+ * On a phone this is the primary navigation, so it is treated as a real
+ * composition rather than a dropdown — an editorial contents page.
  */
 export default function MobileMenu({ open, onClose }: MobileMenuProps) {
   const panelRef = useRef<HTMLDivElement>(null)
@@ -61,13 +64,13 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
           role="dialog"
           aria-modal="true"
           aria-label="Site navigation"
-          className="chapter-ink shell fixed inset-0 z-[72] flex flex-col justify-between pb-8 pt-24 lg:hidden"
+          className="chapter-ink shell fixed inset-0 z-[72] flex flex-col justify-between overflow-y-auto pb-8 pt-[calc(var(--nav-h)+1.5rem)] lg:hidden"
           initial={{ clipPath: 'inset(0 0 100% 0)' }}
           animate={{ clipPath: 'inset(0 0 0% 0)' }}
           exit={{ clipPath: 'inset(0 0 100% 0)', transition: { duration: 0.6, ease: EASE } }}
           transition={{ duration: 0.8, ease: EASE }}
         >
-          <nav aria-label="Primary">
+          <nav aria-label="Primary" className="my-auto">
             <ul>
               {mobileNavLinks.map((l, i) => (
                 <li key={l.href} className="border-b border-line">
@@ -75,14 +78,14 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
                     <motion.a
                       href={l.href}
                       onClick={onClose}
-                      className="flex items-baseline gap-5 py-4 will-change-transform"
+                      className="group flex items-baseline gap-4 py-3.5 will-change-transform sm:gap-5 sm:py-4"
                       initial={{ y: '110%' }}
                       animate={{ y: '0%' }}
                       exit={{ y: '110%', transition: { duration: 0.35, ease: EASE } }}
-                      transition={{ duration: 0.9, ease: EASE, delay: 0.16 + i * 0.075 }}
+                      transition={{ duration: 0.9, ease: EASE, delay: 0.16 + i * 0.07 }}
                     >
-                      <span className="t-index text-accent">{l.index}</span>
-                      <span className="display text-[clamp(2.75rem,15vw,4.75rem)] uppercase text-paper">
+                      <span className="t-index text-accent">({l.index})</span>
+                      <span className="display text-[clamp(2.5rem,13vw,4.75rem)] uppercase text-paper transition-transform duration-700 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-2">
                         {l.label}
                       </span>
                     </motion.a>
@@ -96,22 +99,25 @@ export default function MobileMenu({ open, onClose }: MobileMenuProps) {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, transition: { duration: 0.25 } }}
-            transition={{ delay: 0.5, duration: 0.8, ease: EASE }}
-            className="grid gap-8 xs:grid-cols-2"
+            transition={{ delay: 0.52, duration: 0.8, ease: EASE }}
+            className="mt-12 grid gap-8 border-t border-line pt-8 xs:grid-cols-2"
           >
             <div>
-              <p className="eyebrow mb-2">Start a project</p>
+              <p className="eyebrow mb-2.5">Start a project</p>
               <a
                 href={`mailto:${studio.email}`}
                 onClick={onClose}
-                className="u-link display text-[clamp(1.125rem,5.5vw,1.5rem)] normal-case tracking-[-0.02em] text-paper"
+                className="u-link display text-[clamp(1.0625rem,5vw,1.5rem)] normal-case tracking-[-0.02em] text-paper"
               >
                 {studio.email}
               </a>
+              <p className="t-meta mt-3">
+                {studio.location} · {studio.timezone}
+              </p>
             </div>
             <div>
-              <p className="eyebrow mb-2">Elsewhere</p>
-              <ul className="flex flex-wrap gap-x-5 gap-y-1.5">
+              <p className="eyebrow mb-2.5">Elsewhere</p>
+              <ul className="flex flex-wrap gap-x-5 gap-y-2">
                 {socials.map((s) => (
                   <li key={s.label}>
                     <a

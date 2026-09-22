@@ -5,9 +5,15 @@ import RevealText from '../components/RevealText'
 import EditorialLink from '../components/EditorialLink'
 
 /**
- * The close. Pure typography at the largest scale on the page — no
- * glow, no gradient, no boxed form. The CTA is the last thing the eye
- * lands on.
+ * The close.
+ *
+ * Pure typography at the largest scale on the page — no glow, no gradient,
+ * no boxed form. The headline is set as three lines with the last word in
+ * serif italic and the accent, so the eye lands on the *idea* before it
+ * lands on the action.
+ *
+ * The three detail columns below are the studio's actual contact surface:
+ * new business, a direct address, and where else it publishes.
  */
 export default function Contact() {
   return (
@@ -18,16 +24,19 @@ export default function Contact() {
       aria-label="Start a project"
     >
       <div className="shell">
-        <motion.p
+        <motion.div
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
-          className="sec-label mb-10 md:mb-16"
+          className="mb-12 flex items-baseline justify-between gap-6 border-b border-line pb-5 md:mb-16"
         >
-          <span className="n">( 08 )</span>
-          <span>Contact</span>
-        </motion.p>
+          <p className="sec-label">
+            <span className="n">( 10 )</span>
+            <span>Contact</span>
+          </p>
+          <p className="t-meta hidden sm:block">{studio.email}</p>
+        </motion.div>
 
         <RevealText
           as="h2"
@@ -47,11 +56,11 @@ export default function Contact() {
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
-          className="mt-16 grid gap-12 border-t border-line pt-10 md:mt-24 md:grid-cols-12 md:gap-10 md:pt-12"
+          className="mt-14 grid gap-12 border-t border-line pt-10 md:mt-20 md:grid-cols-12 md:gap-10 md:pt-12"
         >
           {/* Primary CTA */}
           <motion.div variants={fadeUp} className="md:col-span-5">
-            <p className="t-meta mb-6">New business</p>
+            <p className="t-meta mb-7">New business</p>
             <EditorialLink
               href={`mailto:${studio.email}`}
               size="lg"
@@ -69,10 +78,10 @@ export default function Contact() {
 
           {/* Direct */}
           <motion.div variants={fadeUp} className="md:col-span-3 md:col-start-7">
-            <p className="t-meta mb-6">Direct</p>
+            <p className="t-meta mb-7">Direct</p>
             <a
               href={`mailto:${studio.email}`}
-              className="u-link display block text-[1.125rem] md:text-[1.375rem]"
+              className="u-link display block text-[1.0625rem] normal-case tracking-[-0.02em] md:text-[1.375rem]"
             >
               {studio.email}
             </a>
@@ -85,7 +94,7 @@ export default function Contact() {
 
           {/* Elsewhere */}
           <motion.div variants={fadeUp} className="md:col-span-3 md:col-start-10">
-            <p className="t-meta mb-6">Elsewhere</p>
+            <p className="t-meta mb-7">Elsewhere</p>
             <ul className="space-y-2.5">
               {socials.map((s) => (
                 <li key={s.label}>

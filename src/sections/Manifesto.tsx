@@ -29,11 +29,38 @@ function Word({
   )
 }
 
+/** A masked claim line whose Y is driven by the section's own progress. */
+function Line({
+  children,
+  progress,
+  range,
+  reduced
+}: {
+  children: React.ReactNode
+  progress: MotionValue<number>
+  range: [number, number]
+  reduced: boolean
+}) {
+  const y = useTransform(progress, range, reduced ? ['0%', '0%'] : ['106%', '0%'])
+  return (
+    <span className="block overflow-hidden pb-[0.055em] pr-[0.04em]">
+      <motion.span className="block will-change-transform" style={{ y }}>
+        {children}
+      </motion.span>
+    </span>
+  )
+}
+
 /**
- * The manifesto — the studio's argument, set as a three-line claim at
- * display scale, then a running paragraph whose words resolve from
- * muted to foreground as the reader scrolls. The text literally comes
- * into focus.
+ * The manifesto — the studio's argument.
+ *
+ * A bracketed marker, a three-line claim at display scale where each line
+ * rises out of its own mask as you scroll, then a running paragraph whose
+ * words resolve from muted to foreground. The text literally comes into
+ * focus as the reader commits to it.
+ *
+ * Only the paragraph words and the claim lines are animated — nothing
+ * else in the section moves, so the eye always knows where to go.
  */
 export default function Manifesto() {
   const reduced = usePrefersReducedMotion()
@@ -45,12 +72,27 @@ export default function Manifesto() {
 
   return (
     <section ref={ref} className="shell section relative" aria-label="Manifesto">
-      <div className="grid gap-12 md:grid-cols-12 md:gap-10">
-        <p className="sec-label md:col-span-3">
-          <span className="n">( 01 )</span>
-          <span>Manifesto</span>
-        </p>
+      <div className="grid gap-10 md:grid-cols-12 md:gap-10">
+        {/* Indicator + marker */}
+        <div className="md:col-span-3">
+          <p className="sec-label">
+            <span className="n">( 01 )</span>
+            <span>Manifesto</span>
+          </p>
 
+          <motion.p
+            aria-hidden="true"
+            className="mt-8 hidden font-mono text-[clamp(2.5rem,4vw,3.5rem)] font-medium leading-none text-accent md:block"
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-15% 0px' }}
+            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+          >
+            [ ! ]
+          </motion.p>
+        </div>
+
+        {/* Claim */}
         <div className="md:col-span-9">
           <h2 className="t-display">
             {manifesto.lines.map((line, i) => {
@@ -76,7 +118,9 @@ export default function Manifesto() {
             })}
           </h2>
 
-          <p className="t-statement mt-16 max-w-[24ch] md:mt-24 md:ml-[28%] md:max-w-[22ch]">
+          {/* Supporting copy — offset into the right margin so the claim
+              and the argument never share a left edge. */}
+          <p className="t-statement mt-14 max-w-[26ch] text-balance md:mt-24 md:ml-[30%] md:max-w-[24ch]">
             {words.map((w, i) => (
               <Word
                 key={i}
@@ -92,27 +136,5 @@ export default function Manifesto() {
         </div>
       </div>
     </section>
-  )
-}
-
-/** A masked line whose Y position is driven by scroll progress. */
-function Line({
-  children,
-  progress,
-  range,
-  reduced
-}: {
-  children: React.ReactNode
-  progress: MotionValue<number>
-  range: [number, number]
-  reduced: boolean
-}) {
-  const y = useTransform(progress, range, reduced ? ['0%', '0%'] : ['106%', '0%'])
-  return (
-    <span className="block overflow-hidden pb-[0.06em]">
-      <motion.span className="block will-change-transform" style={{ y }}>
-        {children}
-      </motion.span>
-    </span>
   )
 }

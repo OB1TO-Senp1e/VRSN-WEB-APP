@@ -4,6 +4,7 @@ import ScrollProgress from './components/ScrollProgress'
 import Preloader from './components/Preloader'
 import Navbar from './components/Navbar'
 import Marquee from './components/Marquee'
+import ScrollTextLines from './components/ScrollTextLines'
 import Hero from './sections/Hero'
 import Manifesto from './sections/Manifesto'
 import Statement from './sections/Statement'
@@ -16,16 +17,23 @@ import Contact from './sections/Contact'
 import Footer from './sections/Footer'
 
 /**
- * Page rhythm — chapters alternate between paper and ink so the scroll
- * never settles into a single register:
+ * Page composition.
  *
- *   Hero · Manifesto      paper   (quiet, type-driven)
- *   Statement             ink     (the loud claim)
- *   Work · Services ·
- *   About                 paper   (the printed portfolio)
- *   Process               ink     (sticky, photographic)
- *   Collaboration         paper   (editorial list)
- *   Contact · Footer      ink     (the close)
+ * Eleven movements, each numbered like a printed contents page, and the
+ * ground alternates between paper and ink so the scroll never settles into
+ * a single register:
+ *
+ *   Hero · Manifesto          paper   quiet, type-driven
+ *   Statement                 ink     the loud claim
+ *   Work                      ink     the printed portfolio
+ *   Services · About          paper   the argument
+ *   Process                   ink     sticky, photographic
+ *   Collaboration             paper   the register
+ *   Kinetic installation      paper   the installation
+ *   Contact · Footer          ink     the close
+ *
+ * Two typographic bands break the type before each major shift — one
+ * running left, one running right, so the page has a pulse.
  */
 export default function App() {
   const [ready, setReady] = useState(false)
@@ -68,6 +76,9 @@ export default function App() {
 
         <Collaboration />
 
+        {/* Kinetic typography — the collaboration mark, before the close */}
+        <ScrollTextLines />
+
         {/* Signature band, running the other way */}
         <Marquee
           items={['Every idea has a version', 'VRSN®', 'Independent creative studio']}
@@ -75,7 +86,7 @@ export default function App() {
           direction={1}
           size="lg"
           separator="—"
-          className="border-y border-line py-8 md:py-12"
+          className="border-y border-line py-8 md:py-11"
         />
 
         <Contact />

@@ -2,6 +2,9 @@
    VRSN® — content model
    Brand identity, positioning and project copy are the studio's own.
    No invented clients, awards, years, revenue or statistics.
+
+   Everything on the page reads from this file. If it is not here,
+   it is not on the site.
    ============================================================ */
 
 export const studio = {
@@ -35,7 +38,18 @@ export const hero = {
     'We are an independent studio for brand identity, digital experience and motion. We find the version of a company people actually remember — then build it, end to end.',
   cta: 'Start a project',
   /** Sits on the hero baseline as the third column. */
-  disciplines: ['Brand identity', 'Digital experience', 'Motion']
+  disciplines: ['Brand identity', 'Digital experience', 'Motion'],
+  /** The one image in the hero — offset into the type. */
+  visual: {
+    src: '/images/studio-detail.jpg',
+    alt: 'Faceted concrete facade folding back on itself in hard sunlight'
+  },
+  /** Small factual strip pinned to the hero baseline. */
+  meta: [
+    { label: 'Est.', value: studio.founded },
+    { label: 'Based', value: studio.location },
+    { label: 'Studio time', value: studio.timezone }
+  ]
 } as const
 
 /** Scroll-scrubbed manifesto. Words in `emphasis` resolve to the accent. */
@@ -397,7 +411,11 @@ export const about = {
   body: [
     'Great work comes from fewer, deeper collaborations — not a production line. We keep the team small, the process honest and the standard uncomfortable.',
     'If it does not move the work forward, we cut it. That applies to features, pages, meetings and ideas — including our own.'
-  ]
+  ],
+  image: {
+    src: '/images/about-studio.jpg',
+    alt: 'Monochrome woven facade curving out of deep shadow — the visual language of the VRSN studio'
+  }
 } as const
 
 export const principles = [
@@ -419,7 +437,7 @@ export const principles = [
 ]
 
 /* ------------------------------------------------------------------ */
-/* Collaboration — who the studio works with                           */
+/* Collaboration — who the studio works with, and the kinetic close     */
 /* ------------------------------------------------------------------ */
 
 export interface Audience {
@@ -457,21 +475,73 @@ export const audiences: Audience[] = [
   }
 ]
 
+/**
+ * The kinetic typography installation (spec §09).
+ *
+ * Three lines, each locked to the section's own scroll progress and each
+ * travelling a different distance on its own axis — out, back, then out
+ * again. `from` / `to` are percentages of the row width (the full bleed
+ * width, not the text width), so the travel reads identically on a phone
+ * and on a 1920px display.
+ *
+ * `align` places the line inside the bleed, and `indent` nudges it so the
+ * three lines stand on stepped left edges rather than a flush stack —
+ * which is what stops the block reading as three centred headings.
+ */
+export interface KineticLine {
+  /** The line's leading words. */
+  lead: string
+  /** Optional serif-italic word set inside the line. */
+  em?: string
+  /** Optional closing character, set flush against the line. */
+  tail?: string
+  /** Horizontal travel in percent of the row width. */
+  from: number
+  to: number
+  /** Alignment of the line inside the bleed. */
+  align: 'start' | 'center' | 'end'
+  /** Static left nudge, in percent of the row width. */
+  indent?: number
+  /** Vertical drift in percent of the line's own height. */
+  drift?: number
+}
+
+export const kineticLines: KineticLine[] = [
+  /* Out to the right, then back as you descend */
+  { lead: 'SO, ARE YOU', from: -20, to: 20, align: 'start', indent: 0, drift: 4 },
+  /* Back the other way — the counter-move */
+  { lead: 'READY', from: 20, to: -20, align: 'end', indent: -6, drift: -3 },
+  /* Out again, further and faster than the first line */
+  { lead: 'TO', em: 'Find out', tail: '?', from: -26, to: 24, align: 'center', indent: 4, drift: 3 }
+]
+
+export const kinetic = {
+  label: 'Next',
+  /** Read-aloud text — also the accessible name for the whole block. */
+  caption: 'So, are you ready to find out?',
+  cta: 'Start the conversation'
+} as const
+
 /* ------------------------------------------------------------------ */
 /* Navigation                                                          */
 /* ------------------------------------------------------------------ */
 
+/** Primary navigation. `section` links to a real id on the page and
+ *  drives the scroll-spy active state. */
 export const navLinks = [
-  { label: 'Work', href: '#work' },
-  { label: 'About', href: '#about' },
-  { label: 'Services', href: '#services' }
-]
+  { label: 'Work', href: '#work', section: 'work' },
+  { label: 'Services', href: '#services', section: 'services' },
+  { label: 'Studio', href: '#about', section: 'about' },
+  { label: 'Process', href: '#process', section: 'process' },
+  { label: 'Contact', href: '#contact', section: 'contact' }
+] as const
 
 export const mobileNavLinks = [
   { index: '01', label: 'Work', href: '#work' },
-  { index: '02', label: 'About', href: '#about' },
-  { index: '03', label: 'Services', href: '#services' },
-  { index: '04', label: 'Contact', href: '#contact' }
+  { index: '02', label: 'Services', href: '#services' },
+  { index: '03', label: 'Studio', href: '#about' },
+  { index: '04', label: 'Process', href: '#process' },
+  { index: '05', label: 'Contact', href: '#contact' }
 ]
 
 export const socials = [

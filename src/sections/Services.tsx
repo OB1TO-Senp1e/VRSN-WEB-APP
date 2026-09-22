@@ -5,10 +5,17 @@ import { EASE, fadeUp, staggerContainer, viewportOnce } from '../lib/motion'
 import { useDesktop, useFinePointer } from '../hooks/useMedia'
 import RevealText from '../components/RevealText'
 
+/** Shared row grid — the number, the name and the right-hand metadata
+ *  column all align to it, so the six rows read as one table. */
+const ROW_GRID = 'grid grid-cols-[2.75rem_1fr] md:grid-cols-[7rem_minmax(0,1fr)_minmax(0,15rem)]'
+
 /**
- * One service as an oversized editorial row. On desktop hover the title
- * shifts, the index flips to the accent, the ground washes, and the
- * description opens beneath. On touch the row toggles on tap.
+ * One service as an oversized editorial row.
+ *
+ * Collapsed, it shows the index, the discipline and its sub-topics as a
+ * right-hand metadata column — like a printed contents page. On desktop
+ * hover the row shifts, the index takes brackets and the description
+ * opens beneath. On touch the row toggles on tap.
  */
 function ServiceRow({
   service,
@@ -36,7 +43,7 @@ function ServiceRow({
       onPointerEnter={fine ? onEnter : undefined}
       onPointerLeave={fine ? onLeave : undefined}
     >
-      {/* Ground wash on hover — subtle, no shadow */}
+      {/* Ground wash on hover — a flat tone shift, no shadow */}
       <motion.span
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-[calc(var(--gutter)*-1)] inset-y-0 bg-paper-2"
@@ -52,35 +59,51 @@ function ServiceRow({
           onFocus={fine ? onEnter : undefined}
           aria-expanded={open}
           aria-controls={panelId}
-          className="grid w-full grid-cols-[2.5rem_1fr_auto] items-baseline gap-4 py-7 text-left md:grid-cols-[6rem_1fr_auto] md:gap-8 md:py-9"
+          className={`${ROW_GRID} w-full items-baseline gap-x-4 py-6 text-left md:gap-x-8 md:py-8`}
         >
           <span
-            className={`t-index transition-colors duration-500 ${
-              open ? 'text-accent' : ''
-            }`}
+            className={`t-index transition-colors duration-500 ${open ? 'text-accent' : ''}`}
           >
             {open ? `(${service.index})` : service.index}
           </span>
+
           <motion.span
-            className="t-row block"
+            className="t-row block min-w-0"
             initial={false}
-            animate={{ x: open ? (fine ? 22 : 8) : 0 }}
+            animate={{ x: open ? (fine ? 18 : 6) : 0 }}
             transition={{ duration: 0.8, ease: EASE }}
           >
             {service.title}
           </motion.span>
-          <motion.span
-            className="t-meta hidden md:block"
-            initial={false}
-            animate={{ opacity: open ? 1 : 0.4, x: open ? 0 : 10 }}
-            transition={{ duration: 0.6, ease: EASE }}
-            aria-hidden="true"
-          >
-            {open ? 'Read →' : `${service.tags.length} areas`}
-          </motion.span>
+
+          {/* Metadata column: sub-topics, becoming the "read" affordance
+              on hover. Hidden on small screens to keep the row tight. */}
+          <span className="col-start-2 mt-3 hidden md:col-start-3 md:mt-0 md:block">
+            <span className="relative block">
+              <motion.span
+                className="t-meta block"
+                initial={false}
+                animate={{ opacity: open ? 0 : 1, y: open ? -6 : 0 }}
+                transition={{ duration: 0.4, ease: EASE }}
+              >
+                {service.tags.slice(0, 2).join(' · ')}
+              </motion.span>
+              <motion.span
+                className="t-meta absolute inset-0 flex items-baseline gap-2"
+                initial={false}
+                animate={{ opacity: open ? 1 : 0, y: open ? 0 : 6 }}
+                transition={{ duration: 0.4, ease: EASE }}
+                aria-hidden="true"
+              >
+                <span>Read</span>
+                <span className="text-accent">→</span>
+              </motion.span>
+            </span>
+          </span>
+
           {/* Touch affordance */}
           <motion.span
-            className="text-xl leading-none text-muted md:hidden"
+            className="col-start-2 mt-3 block text-lg leading-none text-muted md:hidden"
             initial={false}
             animate={{ rotate: open ? 45 : 0 }}
             transition={{ duration: 0.5, ease: EASE }}
@@ -101,7 +124,7 @@ function ServiceRow({
             transition={{ duration: 0.65, ease: EASE }}
             className="relative overflow-hidden"
           >
-            <div className="grid gap-6 pb-9 pl-[2.5rem] md:grid-cols-12 md:gap-10 md:pb-11 md:pl-[8rem]">
+            <div className="grid gap-6 pb-8 pl-[2.75rem] md:grid-cols-12 md:gap-10 md:pb-10 md:pl-[9.75rem]">
               <p className="t-body-sm max-w-[52ch] md:col-span-6 md:text-[1.0625rem]">
                 {service.body}
               </p>
@@ -121,8 +144,11 @@ function ServiceRow({
 }
 
 /**
- * The service list — six oversized typographic rows, no cards. A
- * cursor-tracked image preview follows the pointer on desktop only.
+ * The service list — six oversized typographic rows, no cards.
+ *
+ * A cursor-tracked image preview follows the pointer on desktop only; the
+ * six previews are preloaded as the row group enters the viewport so the
+ * first hover is never empty.
  */
 export default function Services() {
   const desktop = useDesktop()
@@ -148,15 +174,15 @@ export default function Services() {
     <section id="services" className="section relative" aria-label="Services">
       <div className="shell">
         {/* Header */}
-        <div className="grid gap-9 md:grid-cols-12 md:gap-10">
+        <div className="grid gap-10 md:grid-cols-12 md:gap-10">
           <motion.p
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
             viewport={viewportOnce}
-            className="sec-label md:col-span-3"
+            className="sec-label md:col-span-3 md:self-start"
           >
-            <span className="n">( 04 )</span>
+            <span className="n">( 05 )</span>
             <span>Services</span>
           </motion.p>
 
@@ -171,21 +197,22 @@ export default function Services() {
                 </>
               ]}
             />
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={viewportOnce}
-              className="t-body mt-8 max-w-[44ch] md:mt-10"
-            >
-              Six disciplines, one team. Strategy through to shipped code — without the hand-offs
-              where ideas usually die.
-            </motion.p>
           </div>
+
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewportOnce}
+            className="t-body md:col-span-4 md:col-start-9 md:pt-3"
+          >
+            Six disciplines, one team. Strategy through to shipped code — without the hand-offs
+            where ideas usually die.
+          </motion.p>
         </div>
 
         {/* Rows */}
-        <div ref={listRef} className="relative mt-16 md:mt-24" onPointerMove={onPointerMove}>
+        <div ref={listRef} className="relative mt-14 md:mt-20" onPointerMove={onPointerMove}>
           <motion.ul
             variants={staggerContainer}
             initial="hidden"
@@ -212,8 +239,8 @@ export default function Services() {
               <motion.div
                 key={services[active!].index}
                 aria-hidden="true"
-                className="frame pointer-events-none absolute left-0 top-0 z-[5] hidden aspect-[4/5] w-[11rem] lg:block xl:w-[13rem]"
-                style={{ x: spx, y: spy, translateX: '7rem', translateY: '-50%' }}
+                className="frame pointer-events-none absolute left-0 top-0 z-[5] hidden aspect-[4/5] w-[11rem] lg:block xl:w-[13.5rem]"
+                style={{ x: spx, y: spy, translateX: '8rem', translateY: '-50%' }}
                 initial={{ opacity: 0, clipPath: 'inset(100% 0% 0% 0%)' }}
                 animate={{ opacity: 1, clipPath: 'inset(0% 0% 0% 0%)' }}
                 exit={{ opacity: 0, clipPath: 'inset(0% 0% 100% 0%)' }}
@@ -226,6 +253,9 @@ export default function Services() {
                   decoding="async"
                   className="size-full object-cover"
                 />
+                <span className="t-meta absolute bottom-3 left-3 text-paper mix-blend-difference">
+                  {services[active!].index}
+                </span>
               </motion.div>
             )}
           </AnimatePresence>
