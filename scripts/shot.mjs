@@ -1,0 +1,11 @@
+import { chromium } from 'playwright'
+const [sel = '#services', out = 'qa/shot.png', w = '1440', h = '900'] = process.argv.slice(2)
+const browser = await chromium.launch({ args: ['--no-sandbox','--disable-dev-shm-usage','--disable-gpu'] })
+const page = await browser.newPage({ viewport: { width: +w, height: +h } })
+await page.goto('http://localhost:3000/', { waitUntil: 'load' })
+await page.waitForTimeout(2500)
+await page.evaluate((s) => document.querySelector(s).scrollIntoView(), sel)
+await page.waitForTimeout(2200)
+await page.screenshot({ path: out, animations: 'disabled' })
+await browser.close()
+console.log('wrote', out)

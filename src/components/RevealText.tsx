@@ -22,12 +22,18 @@ interface RevealTextProps {
  * used by every headline-scale block on the page, which is why the page
  * feels like one system rather than a set of separately animated parts.
  *
- * Implementation note: the transform is declared as an explicit
- * `initial` / `whileInView` object pair rather than a `variants` function
- * variant. A percentage `y` target inside a function variant does not
- * resolve its unit in Motion 13, which leaves the element parked at its
- * hidden offset — visibly blank. The object form resolves correctly and
- * is what the hero uses, so both share one code path.
+ * IMPORTANT — where the observer goes.
+ * The inner span starts fully translated behind its mask, so it is
+ * completely clipped. IntersectionObserver computes intersection AFTER
+ * ancestor clipping, so a fully-clipped element reports zero intersection
+ * and `whileInView` never fires — the line stays parked at its hidden
+ * offset and the headline reads as blank space.
+ *
+ * The fix is to put `initial` / `whileInView` on the MASK element (which
+ * is never clipped and always has its full line height) and let the inner
+ * span inherit the state through `variants`. The observer then measures a
+ * real box. Hero, which is driven by a boolean flag rather than an
+ * observer, never had this problem — but both now share one code path.
  *
  * Under `prefers-reduced-motion` the lines simply sit at rest.
  */
@@ -43,17 +49,27 @@ export default function RevealText({
   return (
     <Tag className={className}>
       {lines.map((line, i) => (
-        <span key={i} className="block overflow-hidden pb-[0.055em] pr-[0.02em]">
+        <motion.span
+          key={i}
+          className="block overflow-hidden pb-[0.055em] pr-[0.02em]"
+          variants={{ hidden: {}, visible: {} }}
+          initial={reduced ? undefined : 'hidden'}
+          whileInView={reduced ? undefined : 'visible'}
+          viewport={viewportOnce}
+        >
           <motion.span
             className="block will-change-transform"
-            initial={reduced ? false : { y: '110%' }}
-            whileInView={{ y: '0%' }}
-            viewport={viewportOnce}
-            transition={{ duration, ease: EASE, delay: reduced ? 0 : i * stagger }}
+            variants={{
+              hidden: { y: '110%' },
+              visible: {
+                y: '0%',
+                transition: { duration, ease: EASE, delay: reduced ? 0 : i * stagger }
+              }
+            }}
           >
             {line}
           </motion.span>
-        </span>
+        </motion.span>
       ))}
     </Tag>
   )
@@ -67,7 +83,7 @@ interface RevealWordsProps {
 
 /**
  * Word-level masked reveal for shorter, punchier statements.
- * Same technique as `RevealText`, one word per mask.
+ * Same technique as `RevealText` — observer on the mask, travel on the child.
  */
 export function RevealWords({ text, className = '', stagger = 0.05 }: RevealWordsProps) {
   const words = text.split(' ')
@@ -76,18 +92,28 @@ export function RevealWords({ text, className = '', stagger = 0.05 }: RevealWord
   return (
     <span className={className}>
       {words.map((w, i) => (
-        <span key={i} className="inline-block overflow-hidden pb-[0.05em] align-bottom">
+        <motion.span
+          key={i}
+          className="inline-block overflow-hidden pb-[0.05em] align-bottom"
+          variants={{ hidden: {}, visible: {} }}
+          initial={reduced ? undefined : 'hidden'}
+          whileInView={reduced ? undefined : 'visible'}
+          viewport={viewportOnce}
+        >
           <motion.span
             className="inline-block will-change-transform"
-            initial={reduced ? false : { y: '110%' }}
-            whileInView={{ y: '0%' }}
-            viewport={viewportOnce}
-            transition={{ duration: 1.05, ease: EASE, delay: reduced ? 0 : i * stagger }}
+            variants={{
+              hidden: { y: '110%' },
+              visible: {
+                y: '0%',
+                transition: { duration: 1.05, ease: EASE, delay: reduced ? 0 : i * stagger }
+              }
+            }}
           >
             {w}
             {i < words.length - 1 ? '\u00A0' : ''}
           </motion.span>
-        </span>
+        </motion.span>
       ))}
     </span>
   )
