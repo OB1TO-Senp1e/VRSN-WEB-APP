@@ -1,69 +1,107 @@
 @import "tailwindcss";
 
 /* ============================================================
-   VRSN® — Editorial Design System v2
-   Paper ground · ink chapters · one rust accent.
-   Type is the visual. Whitespace is the layout. Everything
-   else is restraint.
+   VRSN® — Editorial design system v3
+   ------------------------------------------------------------
+   Paper ground, ink chapters, one rust accent.
+   Typography is the visual. Whitespace is the layout.
+   Everything else is restraint.
+
+   Cascade strategy
+   ----------------
+   • Token sets (.chapter-ink) are UNLAYERED so they beat Tailwind's
+     layered `:root` theme variables — that is what lets a whole
+     section flip ink ⇄ paper.
+   • Component classes live in @layer components so plain Tailwind
+     utilities can always override them (no `!important` needed).
    ============================================================ */
 
 :root {
-  /* Paper (default) */
+  /* Paper — the default chapter */
   --paper: #f4f1eb;
-  --paper-2: #ebe7df;
+  --paper-2: #eae6de;
   --ink: #0e0e0d;
-  --ink-2: #161615;
+  --ink-2: #171716;
 
-  --fg: var(--ink);
   --bg: var(--paper);
+  --fg: var(--ink);
   --muted: #6f6c66;
-  --muted-2: #a19d95;
+  --muted-2: #a29e96;
   --accent: #c8441d;
   --line: rgba(14, 14, 13, 0.12);
-  --line-strong: rgba(14, 14, 13, 0.32);
+  --line-strong: rgba(14, 14, 13, 0.3);
+  --frame: #e7e3da;
 
-  --font-sans: "Geist", system-ui, -apple-system, sans-serif;
-  --font-display: "Geist", system-ui, sans-serif;
+  /* Type */
+  --font-sans: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Geist", system-ui, -apple-system, sans-serif;
   --font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
+  /* Motion */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 
+  /* Layout */
   --gutter: 1.25rem;
   --nav-h: 4.5rem;
 }
-@media (min-width: 640px)  { :root { --gutter: 2rem; } }
-@media (min-width: 1024px) { :root { --gutter: 3rem; } }
-@media (min-width: 1440px) { :root { --gutter: 4.5rem; } }
+@media (min-width: 640px) {
+  :root { --gutter: 2rem; }
+}
+@media (min-width: 1024px) {
+  :root { --gutter: 3rem; }
+}
+@media (min-width: 1440px) {
+  :root { --gutter: 4.75rem; }
+}
 
-/* Ink chapter — flips the token set for a whole section. */
+/* Ink chapter — flips the whole token set for a section. */
 .chapter-ink {
-  --fg: var(--paper);
   --bg: var(--ink);
-  --muted: #8f8c85;
-  --muted-2: #56544f;
-  --line: rgba(244, 241, 235, 0.12);
+  --fg: var(--paper);
+  --muted: #918e87;
+  --muted-2: #57554f;
+  --accent: #e0562a;
+  --line: rgba(244, 241, 235, 0.13);
   --line-strong: rgba(244, 241, 235, 0.34);
-  background: var(--bg);
+  --frame: #1d1d1c;
+
+  background-color: var(--bg);
   color: var(--fg);
+
+  /* Keep Tailwind colour utilities in step with the flipped chapter.
+     NOTE: --color-paper / --color-ink are deliberately NOT inverted —
+     they stay absolute so `bg-paper` / `text-paper` always mean the
+     literal paper tone (used for type sitting on ink). */
+  --color-fg: var(--paper);
+  --color-muted: #918e87;
+  --color-muted-2: #57554f;
+  --color-line: rgba(244, 241, 235, 0.13);
+  --color-line-strong: rgba(244, 241, 235, 0.34);
+  --color-accent: #e0562a;
 }
 
 @theme {
-  --color-paper: #f4f1eb;
-  --color-paper-2: #ebe7df;
-  --color-ink: #0e0e0d;
-  --color-ink-2: #161615;
+  /* Absolute colours — never flip */
   --color-accent: #c8441d;
-  --color-fg: var(--fg);
-  --color-muted: var(--muted);
-  --color-muted-2: var(--muted-2);
-  --color-line: var(--line);
-  --color-line-strong: var(--line-strong);
+  --color-paper-2: #eae6de;
+  --color-ink-2: #171716;
+
+  /* Chapter-relative colours — overridden by .chapter-ink above */
+  --color-paper: #f4f1eb;
+  --color-ink: #0e0e0d;
+  --color-fg: #0e0e0d;
+  --color-muted: #6f6c66;
+  --color-muted-2: #a29e96;
+  --color-line: rgba(14, 14, 13, 0.12);
+  --color-line-strong: rgba(14, 14, 13, 0.3);
+
   --font-sans: "Geist", system-ui, sans-serif;
   --font-display: "Geist", system-ui, sans-serif;
   --font-serif: "Instrument Serif", Georgia, serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
+
   --breakpoint-xs: 30rem;
 }
 
@@ -75,6 +113,7 @@ html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
 }
+
 body {
   font-family: var(--font-sans);
   background: var(--bg);
@@ -87,14 +126,27 @@ body {
   font-feature-settings: "ss01", "cv11";
   overflow-x: clip;
 }
-img { max-width: 100%; }
 
-::selection { background: var(--ink); color: var(--paper); }
-.chapter-ink ::selection { background: var(--paper); color: var(--ink); }
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
 
 :focus-visible {
   outline: 1.5px solid var(--accent);
   outline-offset: 4px;
+  border-radius: 1px;
+}
+
+/* Anchor targets clear the fixed navigation. */
+[id] {
+  scroll-margin-top: calc(var(--nav-h) + 1rem);
 }
 
 .skip-link {
@@ -102,22 +154,26 @@ img { max-width: 100%; }
   top: 0.75rem;
   left: 0.75rem;
   z-index: 200;
-  transform: translateY(-160%);
-  transition: transform 0.3s var(--ease-out-expo);
+  transform: translateY(-220%);
+  transition: transform 0.35s var(--ease-out-expo);
   background: var(--ink);
   color: var(--paper);
-  padding: 0.6rem 1rem;
+  padding: 0.7rem 1.1rem;
   font: 500 0.6875rem/1 var(--font-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.skip-link:focus { transform: translateY(0); }
+.skip-link:focus {
+  transform: translateY(0);
+}
 
 @media (pointer: fine) {
   body.has-custom-cursor,
   body.has-custom-cursor a,
   body.has-custom-cursor button,
-  body.has-custom-cursor [role="button"] { cursor: none; }
+  body.has-custom-cursor [role="button"] {
+    cursor: none;
+  }
 }
 
 /* ============================================================
@@ -125,7 +181,9 @@ img { max-width: 100%; }
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -133,217 +191,289 @@ img { max-width: 100%; }
   }
 }
 
-/* ============================================================
-   Typography
-   ============================================================ */
-.display {
-  font-family: var(--font-display);
-  font-weight: 600;
-  line-height: 0.9;
-  letter-spacing: -0.045em;
-}
+@layer components {
 
-/* Serif italic emphasis — the one flourish. */
-.em {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  text-transform: none;
-}
+  /* ==========================================================
+     Layout
+     ========================================================== */
+  .shell {
+    padding-left: var(--gutter);
+    padding-right: var(--gutter);
+  }
 
-/* Hero — clamp(4rem, 10vw, 11rem) */
-.t-hero {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(3.25rem, 11vw, 11rem);
-  line-height: 0.88;
-  letter-spacing: -0.05em;
-  text-transform: uppercase;
-}
-@media (min-width: 640px) { .t-hero { font-size: clamp(4rem, 10vw, 11rem); } }
-.t-hero .em { font-size: 1.04em; line-height: 0.8; }
+  .section { padding-block: clamp(6rem, 12vw, 11rem); }
+  .section-sm { padding-block: clamp(4rem, 8vw, 7rem); }
 
-/* Section heading — clamp(3rem, 7vw, 8rem) */
-.t-display {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(2.75rem, 7.6vw, 8rem);
-  line-height: 0.9;
-  letter-spacing: -0.045em;
-  text-transform: uppercase;
-}
-.t-display .em { font-size: 1.04em; }
+  .rule {
+    border-top: 1px solid var(--line);
+  }
 
-/* Mid statement */
-.t-statement {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: clamp(1.625rem, 3.6vw, 3.25rem);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-}
+  /* ==========================================================
+     Typography — the primary design tool
+     ========================================================== */
 
-/* Row / project / service titles */
-.t-row {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(1.75rem, 4.6vw, 4.25rem);
-  line-height: 0.95;
-  letter-spacing: -0.04em;
-}
+  /* Hero — clamp(4rem, 10vw, 11rem) */
+  .t-hero {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(3.5rem, 12vw, 11rem);
+    line-height: 0.86;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+  }
+  @media (min-width: 640px) {
+    .t-hero { font-size: clamp(4rem, 10vw, 11rem); }
+  }
+  .t-hero .em { font-size: 1.05em; line-height: 0.78; }
 
-/* Body — 18–21px */
-.t-body {
-  font-size: 1.0625rem;
-  line-height: 1.55;
-  color: var(--muted);
-  letter-spacing: -0.008em;
-}
-@media (min-width: 768px) { .t-body { font-size: 1.1875rem; line-height: 1.5; } }
-.t-body-lg { font-size: 1.125rem; line-height: 1.5; letter-spacing: -0.01em; }
-@media (min-width: 768px) { .t-body-lg { font-size: 1.3125rem; } }
-.t-body-sm { font-size: 0.9375rem; line-height: 1.6; color: var(--muted); }
+  /* Section titles — clamp(3rem, 7vw, 8rem) */
+  .t-display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(2.75rem, 7.4vw, 8rem);
+    line-height: 0.88;
+    letter-spacing: -0.045em;
+    text-transform: uppercase;
+  }
+  .t-display .em { font-size: 1.05em; }
 
-/* Metadata — mono, 11–13px */
-.t-meta {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  line-height: 1.5;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-@media (min-width: 768px) { .t-meta { font-size: 0.75rem; } }
+  /* Oversized statement — between display and hero */
+  .t-mega {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(3.25rem, 13vw, 15rem);
+    line-height: 0.84;
+    letter-spacing: -0.055em;
+    text-transform: uppercase;
+  }
+  .t-mega .em { font-size: 1.05em; }
 
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  line-height: 1.5;
-}
+  /* Mid statement */
+  .t-statement {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(1.5rem, 3.4vw, 3rem);
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+  }
 
-.t-index {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  font-variant-numeric: tabular-nums;
-}
+  /* Row / project / service titles */
+  .t-row {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.625rem, 4.4vw, 4rem);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+  }
 
-/* Section label pattern: "( 01 )  Work" */
-.sec-label {
-  display: flex;
-  align-items: baseline;
-  gap: 0.875rem;
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-.sec-label .n { color: var(--accent); }
+  /* Generic display helper */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+  }
 
-/* ============================================================
-   Layout
-   ============================================================ */
-.shell { padding-left: var(--gutter); padding-right: var(--gutter); }
+  /* Serif italic emphasis — the single flourish. */
+  .em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    text-transform: none;
+  }
 
-.section { padding-block: clamp(6rem, 12vw, 11rem); }
-.section-sm { padding-block: clamp(4rem, 8vw, 7rem); }
+  /* Body — 18–21px */
+  .t-body {
+    font-size: 1.125rem;
+    line-height: 1.55;
+    color: var(--muted);
+    letter-spacing: -0.008em;
+  }
+  @media (min-width: 768px) {
+    .t-body { font-size: 1.3125rem; line-height: 1.5; }
+  }
+  .t-body-lg {
+    font-size: 1.1875rem;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    color: var(--muted);
+  }
+  @media (min-width: 768px) {
+    .t-body-lg { font-size: 1.4375rem; }
+  }
+  .t-body-sm {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--muted);
+    letter-spacing: -0.005em;
+  }
 
-.rule { border-top: 1px solid var(--line); }
+  /* Metadata — mono, 11–14px */
+  .t-meta {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1.5;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (min-width: 768px) {
+    .t-meta { font-size: 0.8125rem; }
+  }
 
-/* ============================================================
-   Editorial link — underline + arrow, never a pill
-   ============================================================ */
-.e-link {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--fg);
-  padding-bottom: 0.45rem;
-}
-.e-link::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(1);
-  transform-origin: left;
-  transition: transform 0.6s var(--ease-out-expo);
-}
-.e-link:hover::after, .e-link:focus-visible::after {
-  transform: scaleX(0);
-  transform-origin: right;
-}
-.e-link > span:first-child {
-  display: inline-block;
-  transition: transform 0.6s var(--ease-out-expo);
-}
-.e-link:hover > span:first-child { transform: translateX(0.15rem); }
-.e-link__arrow { display: inline-block; transition: transform 0.6s var(--ease-out-expo); }
-.e-link:hover .e-link__arrow, .e-link:focus-visible .e-link__arrow { transform: translateX(0.45rem); }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  @media (min-width: 768px) {
+    .eyebrow { font-size: 0.8125rem; }
+  }
 
-.u-link { position: relative; display: inline-block; }
-.u-link::after {
-  content: "";
-  position: absolute;
-  left: 0; bottom: -0.12em;
-  width: 100%; height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 0.55s var(--ease-out-expo);
-}
-.u-link:hover::after, .u-link:focus-visible::after { transform: scaleX(1); transform-origin: left; }
+  .t-index {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
 
-/* ============================================================
-   Media
-   ============================================================ */
-.frame {
-  position: relative;
-  overflow: hidden;
-  background: var(--paper-2);
-  transform: translateZ(0);
-}
-.chapter-ink .frame { background: var(--ink-2); }
-.frame img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+  /* Section label pattern: "( 01 )  Work" */
+  .sec-label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.875rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  @media (min-width: 768px) {
+    .sec-label { font-size: 0.8125rem; }
+  }
+  .sec-label .n { color: var(--accent); }
 
-/* ============================================================
-   Marquee
-   ============================================================ */
-.marquee-track { display: flex; width: max-content; will-change: transform; }
+  /* Outline type — decorative bands only */
+  .t-outline {
+    color: transparent;
+    -webkit-text-stroke: 1px var(--line-strong);
+  }
 
-/* Outline type — for marquee / decorative statements */
-.t-outline {
-  color: transparent;
-  -webkit-text-stroke: 1px var(--line-strong);
+  /* ==========================================================
+     Editorial link — an underline and an arrow, never a pill
+     ========================================================== */
+  .e-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg);
+    padding-bottom: 0.5rem;
+  }
+  .e-link::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(1);
+    transform-origin: left;
+    transition: transform 0.6s var(--ease-out-expo);
+  }
+  .e-link:hover::after,
+  .e-link:focus-visible::after {
+    transform: scaleX(0);
+    transform-origin: right;
+  }
+  .e-link > span:first-child {
+    display: inline-block;
+    transition: transform 0.6s var(--ease-out-expo);
+  }
+  .e-link:hover > span:first-child,
+  .e-link:focus-visible > span:first-child {
+    transform: translateX(0.18rem);
+  }
+  .e-link__arrow {
+    display: inline-block;
+    transition: transform 0.6s var(--ease-out-expo);
+  }
+  .e-link:hover .e-link__arrow,
+  .e-link:focus-visible .e-link__arrow {
+    transform: translateX(0.5rem);
+  }
+
+  /* Inline underline that grows from the left */
+  .u-link {
+    position: relative;
+    display: inline-block;
+  }
+  .u-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -0.1em;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.55s var(--ease-out-expo);
+  }
+  .u-link:hover::after,
+  .u-link:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* ==========================================================
+     Media
+     ========================================================== */
+  .frame {
+    position: relative;
+    overflow: hidden;
+    background: var(--frame);
+    transform: translateZ(0);
+  }
+  .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ==========================================================
+     Marquee
+     ========================================================== */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
 }
 
 /* ============================================================
    Scrollbar
    ============================================================ */
-::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar { width: 9px; }
 ::-webkit-scrollbar-track { background: var(--paper); }
-::-webkit-scrollbar-thumb { background: #cfcac0; border: 2px solid var(--paper); border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: #b5afa4; }
+::-webkit-scrollbar-thumb {
+  background: #cbc6bb;
+  border: 2px solid var(--paper);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover { background: #b1aca1; }

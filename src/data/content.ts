@@ -1,6 +1,7 @@
 /* ============================================================
    VRSN® — content model
    Brand identity, positioning and project copy are the studio's own.
+   No invented clients, awards, years, revenue or statistics.
    ============================================================ */
 
 export const studio = {
@@ -25,15 +26,17 @@ export const hero = {
   label: 'Independent creative studio',
   /** Lines of the headline. `em` marks the serif-italic word. */
   headline: [
-    { text: 'EVERY BRAND' },
-    { text: 'HAS A BETTER' },
+    { text: 'EVERY BRAND', em: null },
+    { text: 'HAS A BETTER', em: null },
     { text: 'VERSION.', em: 'Version' }
   ],
   /** Short positioning under the headline. */
   positioning:
     'We are an independent studio for brand identity, digital experience and motion. We find the version of a company people actually remember — then build it, end to end.',
-  cta: 'Start a project'
-}
+  cta: 'Start a project',
+  /** Sits on the hero baseline as the third column. */
+  disciplines: ['Brand identity', 'Digital experience', 'Motion']
+} as const
 
 /** Scroll-scrubbed manifesto. Words in `emphasis` resolve to the accent. */
 export const manifesto = {
@@ -42,7 +45,7 @@ export const manifesto = {
   text:
     'A brand is not a logo, a palette or a deck. It is the residue left behind after every encounter. So we design the encounters — the first visit, the second look, the moment someone decides to remember you.',
   emphasis: ['residue', 'encounters']
-}
+} as const
 
 export const statement = {
   headline: ['WE MAKE', 'IDEAS', 'VISIBLE.'],
@@ -51,7 +54,7 @@ export const statement = {
     'VRSN is an independent practice for companies that would rather be recognised than described. We work in three moves — find the idea, give it a form, then build it properly.',
     'Small team by design, led by the people who actually make the work.'
   ]
-}
+} as const
 
 /* ------------------------------------------------------------------ */
 /* Projects                                                            */
@@ -223,8 +226,8 @@ export const filters: Filter[] = [
   { key: 'all', label: 'All' },
   { key: 'branding', label: 'Branding' },
   { key: 'digital', label: 'Digital' },
-  { key: 'motion', label: 'Motion' },
   { key: 'web', label: 'Web' },
+  { key: 'motion', label: 'Motion' },
   { key: 'packaging', label: 'Packaging' }
 ]
 
@@ -330,6 +333,7 @@ export interface ProcessStage {
   title: string
   body: string
   image: string
+  alt: string
 }
 
 export const processStages: ProcessStage[] = [
@@ -338,35 +342,40 @@ export const processStages: ProcessStage[] = [
     title: 'Discover',
     body:
       'We start by listening. Stakeholder interviews, audits, and a brutally honest look at what the brand is versus what it says it is.',
-    image: '/images/work-praxis.jpg'
+    image: '/images/work-praxis.jpg',
+    alt: 'Steep monochrome stairwell — discovery reference'
   },
   {
     index: '02',
     title: 'Strategy',
     body:
       'Insight becomes direction. We define positioning, experience principles and success criteria before a single pixel moves.',
-    image: '/images/work-hollow.jpg'
+    image: '/images/work-hollow.jpg',
+    alt: 'Minimal geometric building exterior — strategy reference'
   },
   {
     index: '03',
     title: 'Design',
     body:
       'Identity, interface and motion evolve together. Short loops, real in-browser work — never just static mockups.',
-    image: '/images/work-monolith.jpg'
+    image: '/images/work-monolith.jpg',
+    alt: 'Intersecting structural beams — design reference'
   },
   {
     index: '04',
     title: 'Develop',
     body:
       'Engineering starts on day one, not after sign-off. Clean component architecture, accessibility and performance budgets are non-negotiable.',
-    image: '/images/work-orbital.jpg'
+    image: '/images/work-orbital.jpg',
+    alt: 'Curved architectural surface traced with flowing lines — development reference'
   },
   {
     index: '05',
     title: 'Launch',
     body:
       'A launch is a beginning. We ship, measure, refine — and hand over a system your team can actually run.',
-    image: '/images/work-noem.jpg'
+    image: '/images/work-noem.jpg',
+    alt: 'Abstract architectural planes — launch reference'
   }
 ]
 
@@ -389,7 +398,7 @@ export const about = {
     'Great work comes from fewer, deeper collaborations — not a production line. We keep the team small, the process honest and the standard uncomfortable.',
     'If it does not move the work forward, we cut it. That applies to features, pages, meetings and ideas — including our own.'
   ]
-}
+} as const
 
 export const principles = [
   {
@@ -421,6 +430,7 @@ export interface Audience {
 
 export const collaboration = {
   label: 'Who we work with',
+  headline: ['FOR THE', 'PEOPLE WHO', 'MAKE THINGS.'],
   intro: 'We keep the roster short so every project gets the people who run the studio.'
 }
 

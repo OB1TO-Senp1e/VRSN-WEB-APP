@@ -2,13 +2,13 @@ import { useRef, useState } from 'react'
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
 import { services, type Service } from '../data/content'
 import { EASE, fadeUp, staggerContainer, viewportOnce } from '../lib/motion'
-import { useFinePointer, usePrefersReducedMotion } from '../hooks/useMedia'
+import { useDesktop, useFinePointer } from '../hooks/useMedia'
 import RevealText from '../components/RevealText'
 
 /**
- * One service as an oversized editorial row. On hover the title shifts,
- * the index flips to the accent, the ground washes, and the description
- * opens beneath. On touch, the row toggles on tap.
+ * One service as an oversized editorial row. On desktop hover the title
+ * shifts, the index flips to the accent, the ground washes, and the
+ * description opens beneath. On touch the row toggles on tap.
  */
 function ServiceRow({
   service,
@@ -52,11 +52,11 @@ function ServiceRow({
           onFocus={fine ? onEnter : undefined}
           aria-expanded={open}
           aria-controls={panelId}
-          className="grid w-full grid-cols-[2.5rem_1fr_auto] items-baseline gap-4 py-6 text-left md:grid-cols-[6rem_1fr_auto] md:gap-8 md:py-8"
+          className="grid w-full grid-cols-[2.5rem_1fr_auto] items-baseline gap-4 py-7 text-left md:grid-cols-[6rem_1fr_auto] md:gap-8 md:py-9"
         >
           <span
             className={`t-index transition-colors duration-500 ${
-              open ? 'text-accent' : 'text-muted-2'
+              open ? 'text-accent' : ''
             }`}
           >
             {open ? `(${service.index})` : service.index}
@@ -64,7 +64,7 @@ function ServiceRow({
           <motion.span
             className="t-row block"
             initial={false}
-            animate={{ x: open ? (fine ? 20 : 8) : 0 }}
+            animate={{ x: open ? (fine ? 22 : 8) : 0 }}
             transition={{ duration: 0.8, ease: EASE }}
           >
             {service.title}
@@ -72,11 +72,11 @@ function ServiceRow({
           <motion.span
             className="t-meta hidden md:block"
             initial={false}
-            animate={{ opacity: open ? 1 : 0.35, x: open ? 0 : 10 }}
+            animate={{ opacity: open ? 1 : 0.4, x: open ? 0 : 10 }}
             transition={{ duration: 0.6, ease: EASE }}
             aria-hidden="true"
           >
-            {open ? 'Read →' : service.tags.length + ' areas'}
+            {open ? 'Read →' : `${service.tags.length} areas`}
           </motion.span>
           {/* Touch affordance */}
           <motion.span
@@ -101,8 +101,10 @@ function ServiceRow({
             transition={{ duration: 0.65, ease: EASE }}
             className="relative overflow-hidden"
           >
-            <div className="grid gap-6 pb-8 pl-[3.5rem] md:grid-cols-12 md:gap-10 md:pb-10 md:pl-[8rem]">
-              <p className="t-body max-w-[52ch] md:col-span-6">{service.body}</p>
+            <div className="grid gap-6 pb-9 pl-[2.5rem] md:grid-cols-12 md:gap-10 md:pb-11 md:pl-[8rem]">
+              <p className="t-body-sm max-w-[52ch] md:col-span-6 md:text-[1.0625rem]">
+                {service.body}
+              </p>
               <ul className="flex flex-wrap gap-x-5 gap-y-1.5 md:col-span-4 md:col-start-8 md:flex-col">
                 {service.tags.map((t) => (
                   <li key={t} className="t-meta">
@@ -118,27 +120,29 @@ function ServiceRow({
   )
 }
 
+/**
+ * The service list — six oversized typographic rows, no cards. A
+ * cursor-tracked image preview follows the pointer on desktop only.
+ */
 export default function Services() {
-  const fine = useFinePointer()
-  const reduced = usePrefersReducedMotion()
+  const desktop = useDesktop()
   const [active, setActive] = useState<number | null>(null)
   const [expanded, setExpanded] = useState<number | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
-  /* Cursor-tracked preview (desktop) */
   const px = useMotionValue(0)
   const py = useMotionValue(0)
   const spx = useSpring(px, { stiffness: 140, damping: 22, mass: 0.5 })
   const spy = useSpring(py, { stiffness: 140, damping: 22, mass: 0.5 })
 
   const onPointerMove = (e: React.PointerEvent) => {
-    if (!fine || reduced || !listRef.current) return
+    if (!desktop || !listRef.current) return
     const r = listRef.current.getBoundingClientRect()
     px.set(e.clientX - r.left)
     py.set(e.clientY - r.top)
   }
 
-  const showPreview = fine && !reduced && active !== null
+  const showPreview = desktop && active !== null
 
   return (
     <section id="services" className="section relative" aria-label="Services">
@@ -172,10 +176,10 @@ export default function Services() {
               initial="hidden"
               whileInView="visible"
               viewport={viewportOnce}
-              className="t-body mt-8 max-w-[40ch] md:mt-10"
+              className="t-body mt-8 max-w-[44ch] md:mt-10"
             >
-              Six disciplines, one team. Strategy through to shipped code —
-              without the hand-offs where ideas usually die.
+              Six disciplines, one team. Strategy through to shipped code — without the hand-offs
+              where ideas usually die.
             </motion.p>
           </div>
         </div>
@@ -208,8 +212,8 @@ export default function Services() {
               <motion.div
                 key={services[active!].index}
                 aria-hidden="true"
-                className="frame pointer-events-none absolute left-0 top-0 z-[5] aspect-[4/5] w-[12rem] xl:w-[14rem]"
-                style={{ x: spx, y: spy, translateX: '6rem', translateY: '-50%' }}
+                className="frame pointer-events-none absolute left-0 top-0 z-[5] hidden aspect-[4/5] w-[11rem] lg:block xl:w-[13rem]"
+                style={{ x: spx, y: spy, translateX: '7rem', translateY: '-50%' }}
                 initial={{ opacity: 0, clipPath: 'inset(100% 0% 0% 0%)' }}
                 animate={{ opacity: 1, clipPath: 'inset(0% 0% 0% 0%)' }}
                 exit={{ opacity: 0, clipPath: 'inset(0% 0% 100% 0%)' }}

@@ -5,61 +5,77 @@ import Preloader from './components/Preloader'
 import Navbar from './components/Navbar'
 import Marquee from './components/Marquee'
 import Hero from './sections/Hero'
-import Intro from './sections/Intro'
-import Work from './sections/Work'
+import Manifesto from './sections/Manifesto'
 import Statement from './sections/Statement'
+import Work from './sections/Work'
 import Services from './sections/Services'
 import About from './sections/About'
-import Testimonials from './sections/Testimonials'
-import Clients from './sections/Clients'
+import Process from './sections/Process'
+import Collaboration from './sections/Collaboration'
 import Contact from './sections/Contact'
 import Footer from './sections/Footer'
 
 /**
- * Page rhythm — each chapter deliberately breaks the previous one's
- * scale so the scroll never settles into a template cadence.
+ * Page rhythm — chapters alternate between paper and ink so the scroll
+ * never settles into a single register:
+ *
+ *   Hero · Manifesto      paper   (quiet, type-driven)
+ *   Statement             ink     (the loud claim)
+ *   Work · Services ·
+ *   About                 paper   (the printed portfolio)
+ *   Process               ink     (sticky, photographic)
+ *   Collaboration         paper   (editorial list)
+ *   Contact · Footer      ink     (the close)
  */
 export default function App() {
   const [ready, setReady] = useState(false)
   const onReady = useCallback(() => setReady(true), [])
 
   return (
-    <div className="grain">
+    <div>
       <a href="#work" className="skip-link">
-        Skip to content
+        Skip to work
       </a>
 
       <Preloader onDone={onReady} />
       <CustomCursor />
       <ScrollProgress />
-      <Navbar />
+      <Navbar ready={ready} />
 
       <main id="main">
         <Hero ready={ready} />
-        <Intro />
 
-        {/* Disciplines band */}
+        <Manifesto />
+
+        {/* Disciplines band — breaks the type before the loud statement */}
         <Marquee
-          items={['BRANDING', 'DIGITAL', 'MOTION', 'DEVELOPMENT', 'STRATEGY']}
-          speed={1.5}
+          items={['Strategy', 'Branding', 'Digital', 'Motion', 'Development']}
+          speed={1.2}
           direction={-1}
-          className="border-y border-[var(--border)] py-7 text-bone/[0.14] md:py-10"
+          size="md"
+          className="border-y border-line py-6 md:py-8"
         />
 
-        <Work />
         <Statement />
+
+        <Work />
+
         <Services />
+
         <About />
-        <Testimonials />
-        <Clients />
+
+        <Process />
+
+        <Collaboration />
 
         {/* Signature band, running the other way */}
         <Marquee
-          items={['EVERY IDEA HAS A VERSION', 'VRSN®']}
-          speed={1.2}
+          items={['Every idea has a version', 'VRSN®', 'Independent creative studio']}
+          speed={1}
           direction={1}
+          size="lg"
           separator="—"
-          className="border-y border-[var(--border)] py-7 text-bone/[0.1] md:py-10"
+          className="border-y border-line py-8 md:py-12"
         />
 
         <Contact />

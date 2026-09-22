@@ -15,3 +15,15 @@ export function useMedia(query: string, initial = false): boolean {
 
 export const useFinePointer = () => useMedia('(pointer: fine)')
 export const usePrefersReducedMotion = () => useMedia('(prefers-reduced-motion: reduce)')
+
+/**
+ * True only on real desktop-class viewports with a mouse.
+ * Gates every hover-driven / parallax-driven enhancement so touch
+ * devices never pay for effects they cannot express.
+ */
+export function useDesktop() {
+  const fine = useFinePointer()
+  const wide = useMedia('(min-width: 1024px)')
+  const reduced = usePrefersReducedMotion()
+  return fine && wide && !reduced
+}

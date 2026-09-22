@@ -18,7 +18,7 @@ export const DUR = {
 } as const
 
 export const viewportOnce = { once: true, margin: '-10% 0px -10% 0px' } as const
-export const viewportEarly = { once: true, margin: '0px 0px -6% 0px' } as const
+export const viewportEarly = { once: true, margin: '0px 0px -8% 0px' } as const
 
 /* ------------------------------------------------------------------ */
 /* Primitives                                                          */
@@ -105,3 +105,13 @@ export const hoverSpring: Transition = {
   damping: 26,
   mass: 0.6
 }
+
+/**
+ * Standard "reveal on scroll into view" prop bundle.
+ * Kept as a helper so every section animates on the same contract.
+ */
+export const inViewOnce = {
+  initial: 'hidden',
+  whileInView: 'visible',
+  viewport: viewportOnce
+} as const

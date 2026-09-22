@@ -10,7 +10,8 @@ interface ProjectFilterProps {
 
 /**
  * Editorial filters — a typographic row with one sliding indicator
- * rule. No pills, no boxes, no active-state fills.
+ * rule. No pills, no boxes, no active-state fills. Scrolls
+ * horizontally on narrow screens.
  */
 export default function ProjectFilter({ active, onChange, counts }: ProjectFilterProps) {
   return (
@@ -24,7 +25,7 @@ export default function ProjectFilter({ active, onChange, counts }: ProjectFilte
       <div
         role="tablist"
         aria-label="Filter work by discipline"
-        className="flex min-w-max items-baseline gap-7 border-b border-line pb-4 md:gap-10"
+        className="flex min-w-max items-baseline gap-7 border-b border-line pb-4 md:gap-11"
       >
         {filters.map((f) => {
           const isActive = active === f.key
@@ -42,14 +43,14 @@ export default function ProjectFilter({ active, onChange, counts }: ProjectFilte
             >
               <span
                 className={`t-meta transition-colors duration-500 ${
-                  isActive ? '!text-fg' : 'group-hover:!text-fg'
+                  isActive ? 'text-fg' : 'group-hover:text-fg'
                 }`}
               >
                 {f.label}
               </span>
               <span
                 className={`t-index text-[0.5625rem] transition-colors duration-500 ${
-                  isActive ? 'text-accent' : 'text-muted-2'
+                  isActive ? 'text-accent' : ''
                 }`}
                 aria-hidden="true"
               >

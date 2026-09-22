@@ -10,7 +10,9 @@ import ArchiveOverlay from '../components/ArchiveOverlay'
 /**
  * The visual centrepiece, set on ink so the photography carries.
  * Projects sit on a 12-column editorial grid with varying spans,
- * start columns and vertical offsets, so no two features share a rhythm.
+ * start columns and vertical offsets, so no two features share a
+ * rhythm. Filtering re-flows the grid with layout transitions — no
+ * reload, no cards.
  */
 export default function Work() {
   const [active, setActive] = useState('all')
@@ -26,8 +28,7 @@ export default function Work() {
   }, [])
 
   const visible = useMemo(
-    () =>
-      active === 'all' ? projects : projects.filter((p) => p.categories.includes(active)),
+    () => (active === 'all' ? projects : projects.filter((p) => p.categories.includes(active))),
     [active]
   )
 
@@ -60,7 +61,7 @@ export default function Work() {
                 'SELECTED',
                 <>
                   <span className="em">Work</span>
-                  <span className="t-meta ml-4 inline-block align-top !text-muted md:ml-6">
+                  <span className="t-meta ml-4 inline-block align-top md:ml-7">
                     {String(projects.length).padStart(2, '0')} — {new Date().getFullYear()}
                   </span>
                 </>
@@ -71,10 +72,10 @@ export default function Work() {
               initial="hidden"
               whileInView="visible"
               viewport={viewportOnce}
-              className="t-body mt-8 max-w-[38ch] md:mt-10"
+              className="t-body mt-8 max-w-[42ch] md:mt-10"
             >
-              Identities, platforms and experiments — each one built end to end,
-              in-house, by the people who designed it.
+              Identities, platforms and experiments — each one built end to end, in-house, by the
+              people who designed it.
             </motion.p>
           </div>
         </div>
@@ -112,11 +113,13 @@ export default function Work() {
           className="mt-24 flex flex-wrap items-baseline justify-between gap-6 border-t border-line pt-8 md:mt-36"
         >
           <p className="t-meta">
-            Complete index — {projects.length + archive.length} projects
+            Complete index — {String(projects.length + archive.length).padStart(2, '0')} projects
           </p>
           <button type="button" onClick={() => setArchiveOpen(true)} className="e-link">
             <span>See all work</span>
-            <span className="e-link__arrow" aria-hidden="true">→</span>
+            <span className="e-link__arrow" aria-hidden="true">
+              →
+            </span>
           </button>
         </motion.div>
       </div>

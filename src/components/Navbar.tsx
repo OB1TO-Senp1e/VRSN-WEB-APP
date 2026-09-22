@@ -87,7 +87,7 @@ export default function Navbar({ ready = true }: { ready?: boolean }) {
               <a
                 key={l.href}
                 href={l.href}
-                className="u-link t-meta !text-current opacity-70 transition-opacity duration-500 hover:opacity-100"
+                className="u-link t-meta text-current opacity-70 transition-opacity duration-500 hover:opacity-100"
               >
                 {l.label}
               </a>
@@ -95,7 +95,7 @@ export default function Navbar({ ready = true }: { ready?: boolean }) {
             <a
               href="#contact"
               data-cursor="talk"
-              className="e-link !pb-[0.3rem] !text-current !text-[0.6875rem] md:!text-[0.75rem]"
+              className="e-link pb-[0.3rem] text-current text-[0.6875rem] md:text-[0.75rem]"
             >
               <span>Let's Talk</span>
               <span className="e-link__arrow" aria-hidden="true">→</span>
@@ -108,7 +108,7 @@ export default function Navbar({ ready = true }: { ready?: boolean }) {
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
             aria-controls="mobile-menu"
-            className="t-meta relative z-[76] -mr-2 flex items-center justify-end gap-3 py-2 pl-3 pr-2 !text-current lg:hidden"
+            className="t-meta relative z-[76] -mr-2 flex items-center justify-end gap-3 py-2 pl-3 pr-2 text-current lg:hidden"
           >
             <span>{open ? 'Close' : 'Menu'}</span>
             <span className="flex w-5 flex-col gap-[5px]" aria-hidden="true">

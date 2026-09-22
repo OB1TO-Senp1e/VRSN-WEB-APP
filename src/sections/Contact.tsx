@@ -5,15 +5,16 @@ import RevealText from '../components/RevealText'
 import EditorialLink from '../components/EditorialLink'
 
 /**
- * The close (spec §14). Pure typography at the largest scale on the
- * page — no glow, no gradient, no boxed form. The CTA is the last
- * thing the eye lands on.
+ * The close. Pure typography at the largest scale on the page — no
+ * glow, no gradient, no boxed form. The CTA is the last thing the eye
+ * lands on.
  */
 export default function Contact() {
   return (
     <section
       id="contact"
-      className="relative pb-24 pt-24 md:pb-32 md:pt-32 lg:pb-40 lg:pt-44"
+      data-theme="ink"
+      className="chapter-ink section relative"
       aria-label="Start a project"
     >
       <div className="shell">
@@ -22,21 +23,20 @@ export default function Contact() {
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
-          className="eyebrow mb-10 md:mb-14"
+          className="sec-label mb-10 md:mb-16"
         >
-          <span className="text-accent">05</span>
-          <span className="px-3 text-[var(--muted-2)]">/</span>
-          Contact
+          <span className="n">( 08 )</span>
+          <span>Contact</span>
         </motion.p>
 
         <RevealText
           as="h2"
-          className="t-hero text-bone"
+          className="t-hero"
           lines={[
             "LET'S MAKE",
             'SOMETHING',
             <>
-              <span className="t-em pr-[0.06em] text-accent">Memorable</span>.
+              <span className="em text-accent">Memorable</span>.
             </>
           ]}
         />
@@ -47,36 +47,36 @@ export default function Contact() {
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
-          className="mt-14 grid gap-12 border-t border-[var(--border)] pt-10 md:mt-20 md:grid-cols-12 md:gap-10 md:pt-12"
+          className="mt-16 grid gap-12 border-t border-line pt-10 md:mt-24 md:grid-cols-12 md:gap-10 md:pt-12"
         >
           {/* Primary CTA */}
           <motion.div variants={fadeUp} className="md:col-span-5">
-            <p className="t-meta mb-5">New business</p>
+            <p className="t-meta mb-6">New business</p>
             <EditorialLink
               href={`mailto:${studio.email}`}
               size="lg"
               magnetic
               cursor="talk"
-              className="!text-[0.9375rem] md:!text-[1.0625rem]"
+              className="text-[1rem] md:text-[1.25rem]"
             >
-              Start a project
+              Let's talk
             </EditorialLink>
-            <p className="mt-7 max-w-[34ch] text-[0.9375rem] leading-relaxed text-bone-dim">
-              Tell us what you are building, who it is for, and when it needs to
-              exist. We reply within two working days.
+            <p className="t-body-sm mt-8 max-w-[36ch]">
+              Tell us what you are building, who it is for, and when it needs to exist. We reply
+              within two working days.
             </p>
           </motion.div>
 
           {/* Direct */}
           <motion.div variants={fadeUp} className="md:col-span-3 md:col-start-7">
-            <p className="t-meta mb-5">Direct</p>
+            <p className="t-meta mb-6">Direct</p>
             <a
               href={`mailto:${studio.email}`}
-              className="u-link display block text-[clamp(1.125rem,2.6vw,1.5rem)] text-bone"
+              className="u-link display block text-[1.125rem] md:text-[1.375rem]"
             >
               {studio.email}
             </a>
-            <p className="mt-4 text-[0.9375rem] leading-relaxed text-bone-dim">
+            <p className="t-body-sm mt-5">
               {studio.location}
               <br />
               {studio.timezone}
@@ -85,15 +85,15 @@ export default function Contact() {
 
           {/* Elsewhere */}
           <motion.div variants={fadeUp} className="md:col-span-3 md:col-start-10">
-            <p className="t-meta mb-5">Elsewhere</p>
-            <ul className="space-y-2">
+            <p className="t-meta mb-6">Elsewhere</p>
+            <ul className="space-y-2.5">
               {socials.map((s) => (
                 <li key={s.label}>
                   <a
                     href={s.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="u-link text-[0.9375rem] text-bone-dim transition-colors duration-500 hover:text-bone"
+                    className="u-link text-[0.9375rem] text-muted transition-colors duration-500 hover:text-fg"
                   >
                     {s.label}
                   </a>
