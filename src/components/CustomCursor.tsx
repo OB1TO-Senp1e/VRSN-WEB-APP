@@ -2,73 +2,106 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
 import { useFinePointer, usePrefersReducedMotion } from '../hooks/useMedia'
 
-type CursorState = 'default' | 'view' | 'link' | 'hidden'
+type Mode = 'hidden' | 'dot' | 'arrow' | 'view' | 'talk'
+
+/** Per-mode geometry & label. */
+const MODES: Record<Exclude<Mode, 'hidden'>, { size: number; label: string }> = {
+  dot: { size: 9, label: '' },
+  arrow: { size: 42, label: '→' },
+  view: { size: 104, label: 'VIEW →' },
+  talk: { size: 116, label: "LET'S TALK" }
+}
 
 /**
- * Custom cursor: small dot that expands to a "VIEW" badge over projects
- * and grows subtly over interactive elements. Fine pointers only.
+ * Minimal custom cursor (spec §18). Fine pointers only; disabled for
+ * touch, tablets and prefers-reduced-motion. Uses mix-blend-difference
+ * so it reads on both the dark shell and the inverted warm-white bands.
+ *
+ * Opt in from any element with:
+ *   data-cursor="view" | "talk" | "arrow"
  */
 export default function CustomCursor() {
   const fine = useFinePointer()
   const reduced = usePrefersReducedMotion()
-  const [state, setState] = useState<CursorState>('hidden')
-  const stateRef = useRef(state)
-  stateRef.current = state
+  const enabled = fine && !reduced
 
-  const x = useMotionValue(-100)
-  const y = useMotionValue(-100)
-  const sx = useSpring(x, { stiffness: 500, damping: 40, mass: 0.6 })
-  const sy = useSpring(y, { stiffness: 500, damping: 40, mass: 0.6 })
+  const [mode, setMode] = useState<Mode>('hidden')
+  const modeRef = useRef<Mode>('hidden')
+  modeRef.current = mode
+
+  const x = useMotionValue(-200)
+  const y = useMotionValue(-200)
+  const sx = useSpring(x, { stiffness: 520, damping: 42, mass: 0.5 })
+  const sy = useSpring(y, { stiffness: 520, damping: 42, mass: 0.5 })
 
   useEffect(() => {
-    if (!fine || reduced) {
-      document.body.classList.remove('vrsn-cursor')
+    if (!enabled) {
+      document.body.classList.remove('has-custom-cursor')
       return
     }
-    document.body.classList.add('vrsn-cursor')
+    document.body.classList.add('has-custom-cursor')
 
-    const onMove = (e: MouseEvent) => {
+    const resolve = (target: EventTarget | null): Mode => {
+      if (!(target instanceof Element)) return 'dot'
+      const flagged = target.closest<HTMLElement>('[data-cursor]')
+      if (flagged) {
+        const v = flagged.dataset.cursor
+        if (v === 'view' || v === 'talk' || v === 'arrow') return v
+      }
+      if (target.closest('a, button, [role="button"], input, textarea, select')) return 'arrow'
+      return 'dot'
+    }
+
+    const onMove = (e: PointerEvent) => {
       x.set(e.clientX)
       y.set(e.clientY)
-      if (stateRef.current === 'hidden') setState('default')
-      const t = e.target as HTMLElement
-      if (t.closest('[data-cursor="view"]')) setState('view')
-      else if (t.closest('a, button, [data-cursor="link"]')) setState('link')
-      else setState('default')
+      const next = resolve(e.target)
+      if (next !== modeRef.current) setMode(next)
     }
-    const onLeave = () => setState('hidden')
+    const onLeave = () => setMode('hidden')
+    const onDown = () => setMode((m) => m)
 
-    window.addEventListener('mousemove', onMove, { passive: true })
-    document.documentElement.addEventListener('mouseleave', onLeave)
+    window.addEventListener('pointermove', onMove, { passive: true })
+    document.documentElement.addEventListener('pointerleave', onLeave)
+    window.addEventListener('blur', onLeave)
+    window.addEventListener('pointerdown', onDown, { passive: true })
+
     return () => {
-      window.removeEventListener('mousemove', onMove)
-      document.documentElement.removeEventListener('mouseleave', onLeave)
-      document.body.classList.remove('vrsn-cursor')
+      window.removeEventListener('pointermove', onMove)
+      document.documentElement.removeEventListener('pointerleave', onLeave)
+      window.removeEventListener('blur', onLeave)
+      window.removeEventListener('pointerdown', onDown)
+      document.body.classList.remove('has-custom-cursor')
     }
-  }, [fine, reduced, x, y])
+  }, [enabled, x, y])
 
-  if (!fine || reduced) return null
+  if (!enabled) return null
 
-  const size = state === 'view' ? 76 : state === 'link' ? 40 : 10
+  const active = mode === 'hidden' ? MODES.dot : MODES[mode]
+  const isLabelled = mode === 'view' || mode === 'talk' || mode === 'arrow'
 
   return (
     <motion.div
       aria-hidden="true"
-      className="fixed left-0 top-0 z-[100] pointer-events-none flex items-center justify-center rounded-full mix-blend-difference bg-[#f2efe9]"
+      className="pointer-events-none fixed left-0 top-0 z-[100] flex items-center justify-center rounded-full bg-[#f2efe9] mix-blend-difference"
       style={{ x: sx, y: sy, translateX: '-50%', translateY: '-50%' }}
       animate={{
-        width: size,
-        height: size,
-        opacity: state === 'hidden' ? 0 : 1
+        width: active.size,
+        height: active.size,
+        opacity: mode === 'hidden' ? 0 : 1
       }}
-      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
     >
       <motion.span
-        className="text-[10px] font-semibold tracking-[0.2em] text-[#0a0a0b] select-none"
-        animate={{ opacity: state === 'view' ? 1 : 0, scale: state === 'view' ? 1 : 0.5 }}
-        transition={{ duration: 0.25 }}
+        className="select-none whitespace-nowrap font-semibold text-[#0b0b0c]"
+        animate={{
+          opacity: isLabelled ? 1 : 0,
+          fontSize: mode === 'arrow' ? '0.95rem' : '0.625rem',
+          letterSpacing: mode === 'arrow' ? '0em' : '0.16em'
+        }}
+        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
       >
-        VIEW
+        {active.label}
       </motion.span>
     </motion.div>
   )

@@ -1,98 +1,106 @@
-import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { ArrowRight } from 'lucide-react'
-import { lineReveal, fadeUp, staggerContainer, viewportOnce } from '../lib/motion'
-import { usePrefersReducedMotion } from '../hooks/useMedia'
-import Magnetic from '../components/Magnetic'
+import { motion } from 'framer-motion'
+import { studio, socials } from '../data/content'
+import { fadeUp, staggerContainer, viewportOnce } from '../lib/motion'
+import RevealText from '../components/RevealText'
+import EditorialLink from '../components/EditorialLink'
 
-/** Dramatic closing CTA with ambient glow and giant magnetic button. */
+/**
+ * The close (spec §14). Pure typography at the largest scale on the
+ * page — no glow, no gradient, no boxed form. The CTA is the last
+ * thing the eye lands on.
+ */
 export default function Contact() {
-  const reduced = usePrefersReducedMotion()
-  const ref = useRef<HTMLElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end end'] })
-  const glowScale = useTransform(scrollYProgress, [0, 1], reduced ? [1, 1] : [0.7, 1.15])
-  const glowOpacity = useTransform(scrollYProgress, [0, 0.8], [0, 0.16])
-
   return (
     <section
-      ref={ref}
       id="contact"
-      className="relative overflow-hidden px-6 py-32 md:px-10 md:py-48"
+      className="relative pb-24 pt-24 md:pb-32 md:pt-32 lg:pb-40 lg:pt-44"
       aria-label="Start a project"
     >
-      {/* Ambient glow */}
-      <motion.div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 size-[70vmax] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[130px]"
-        style={{
-          scale: glowScale,
-          opacity: glowOpacity,
-          background: 'radial-gradient(circle, #c9a876 0%, transparent 60%)'
-        }}
-      />
-
-      <div className="relative mx-auto max-w-6xl text-center">
+      <div className="shell">
         <motion.p
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
-          className="eyebrow mb-10 justify-center"
+          className="eyebrow mb-10 md:mb-14"
         >
-          06 — Next chapter
+          <span className="text-accent">05</span>
+          <span className="px-3 text-[var(--muted-2)]">/</span>
+          Contact
         </motion.p>
 
-        <h2 className="display text-[clamp(2.8rem,9vw,8rem)] text-bone">
-          {['Have an idea', 'worth building?'].map((line, i) => (
-            <span key={line} className="block overflow-hidden pb-[0.08em]">
-              <motion.span
-                className="block will-change-transform"
-                variants={lineReveal}
-                initial="hidden"
-                whileInView="visible"
-                viewport={viewportOnce}
-                custom={i}
-              >
-                {i === 1 ? (
-                  <>
-                    worth <span className="italic font-serif font-medium text-accent">building?</span>
-                  </>
-                ) : (
-                  line
-                )}
-              </motion.span>
-            </span>
-          ))}
-        </h2>
+        <RevealText
+          as="h2"
+          className="t-hero text-bone"
+          lines={[
+            "LET'S MAKE",
+            'SOMETHING',
+            <>
+              <span className="t-em pr-[0.06em] text-accent">Memorable</span>.
+            </>
+          ]}
+        />
 
+        {/* CTA + details */}
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
-          className="mt-14 flex flex-col items-center gap-8"
+          className="mt-14 grid gap-12 border-t border-[var(--border)] pt-10 md:mt-20 md:grid-cols-12 md:gap-10 md:pt-12"
         >
-          <motion.div variants={fadeUp}>
-            <Magnetic strength={0.3}>
-              <a
-                href="mailto:hello@vrsn.studio"
-                className="group inline-flex items-center gap-4 rounded-full bg-bone px-10 py-5 text-base font-semibold text-ink transition-colors duration-500 hover:bg-accent md:px-14 md:py-6 md:text-lg"
-              >
-                Start a project
-                <ArrowRight
-                  className="size-5 transition-transform duration-500 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1.5"
-                  aria-hidden="true"
-                />
-              </a>
-            </Magnetic>
+          {/* Primary CTA */}
+          <motion.div variants={fadeUp} className="md:col-span-5">
+            <p className="t-meta mb-5">New business</p>
+            <EditorialLink
+              href={`mailto:${studio.email}`}
+              size="lg"
+              magnetic
+              cursor="talk"
+              className="!text-[0.9375rem] md:!text-[1.0625rem]"
+            >
+              Start a project
+            </EditorialLink>
+            <p className="mt-7 max-w-[34ch] text-[0.9375rem] leading-relaxed text-bone-dim">
+              Tell us what you are building, who it is for, and when it needs to
+              exist. We reply within two working days.
+            </p>
           </motion.div>
 
-          <motion.p variants={fadeUp} className="text-sm text-bone-faint">
-            Or write to us directly —{' '}
-            <a href="mailto:hello@vrsn.studio" className="u-link text-bone-dim hover:text-bone transition-colors">
-              hello@vrsn.studio
+          {/* Direct */}
+          <motion.div variants={fadeUp} className="md:col-span-3 md:col-start-7">
+            <p className="t-meta mb-5">Direct</p>
+            <a
+              href={`mailto:${studio.email}`}
+              className="u-link display block text-[clamp(1.125rem,2.6vw,1.5rem)] text-bone"
+            >
+              {studio.email}
             </a>
-          </motion.p>
+            <p className="mt-4 text-[0.9375rem] leading-relaxed text-bone-dim">
+              {studio.location}
+              <br />
+              {studio.timezone}
+            </p>
+          </motion.div>
+
+          {/* Elsewhere */}
+          <motion.div variants={fadeUp} className="md:col-span-3 md:col-start-10">
+            <p className="t-meta mb-5">Elsewhere</p>
+            <ul className="space-y-2">
+              {socials.map((s) => (
+                <li key={s.label}>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="u-link text-[0.9375rem] text-bone-dim transition-colors duration-500 hover:text-bone"
+                  >
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
         </motion.div>
       </div>
     </section>

@@ -1,15 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { testimonials } from '../data/content'
-import { fadeUp, viewportOnce, EASE } from '../lib/motion'
+import { EASE, fadeUp, viewportOnce } from '../lib/motion'
 import { usePrefersReducedMotion } from '../hooks/useMedia'
 
-const ROTATE_MS = 6000
+const ROTATE_MS = 7000
 
-/** Minimal rotating testimonial with oversized quotation. */
+/**
+ * A single oversized quote on the warm-white band — the one inverted
+ * chapter in the page, used to reset the eye before the close.
+ */
 export default function Testimonials() {
   const reduced = usePrefersReducedMotion()
   const [index, setIndex] = useState(0)
+  const [paused, setPaused] = useState(false)
   const timer = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const go = useCallback((i: number) => {
@@ -17,77 +21,82 @@ export default function Testimonials() {
   }, [])
 
   useEffect(() => {
-    if (reduced) return
-    timer.current = setInterval(() => setIndex((i) => (i + 1) % testimonials.length), ROTATE_MS)
+    if (reduced || paused) return
+    timer.current = setInterval(
+      () => setIndex((i) => (i + 1) % testimonials.length),
+      ROTATE_MS
+    )
     return () => {
       if (timer.current) clearInterval(timer.current)
     }
-  }, [reduced, index])
+  }, [reduced, paused])
 
   const t = testimonials[index]
 
   return (
-    <section className="relative px-6 py-28 md:px-10 md:py-40" aria-label="Client testimonials">
-      <div className="mx-auto max-w-5xl">
-        <motion.p
+    <section
+      className="invert-band relative py-24 md:py-32 lg:py-40"
+      aria-label="Words from clients"
+      onPointerEnter={() => setPaused(true)}
+      onPointerLeave={() => setPaused(false)}
+    >
+      <div className="shell">
+        <motion.div
           variants={fadeUp}
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
-          className="eyebrow mb-14 flex items-baseline gap-4"
+          className="flex items-baseline justify-between gap-6 border-b border-[rgba(11,11,12,0.14)] pb-5"
         >
-          <span className="text-accent">05</span>
-          <span className="h-px w-10 self-center bg-[rgba(242,239,233,0.22)]" aria-hidden="true" />
-          What clients say
-        </motion.p>
+          <p className="eyebrow">Words from clients</p>
+          <p className="t-index tabular-nums opacity-60">
+            {String(index + 1).padStart(2, '0')} / {String(testimonials.length).padStart(2, '0')}
+          </p>
+        </motion.div>
 
-        <div className="relative min-h-[280px] md:min-h-[320px]" aria-live="polite">
+        <div className="relative mt-12 min-h-[19rem] md:mt-16 md:min-h-[21rem]" aria-live="polite">
           <AnimatePresence mode="wait">
             <motion.blockquote
               key={index}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.7, ease: EASE }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.75, ease: EASE }}
             >
-              <p className="display text-[clamp(1.6rem,4vw,3.2rem)] leading-[1.15] text-bone">
-                <span className="text-accent" aria-hidden="true">“</span>
+              <p className="t-statement max-w-[24ch] text-ink md:max-w-[26ch]">
                 {t.quote}
-                <span className="text-accent" aria-hidden="true">”</span>
               </p>
-              <footer className="mt-10 flex items-center gap-5">
-                <span
-                  className="grid size-12 place-items-center rounded-full border border-[rgba(242,239,233,0.18)] font-mono text-sm text-accent"
-                  aria-hidden="true"
-                >
-                  {t.name.split(' ').map((n) => n[0]).join('')}
+              <footer className="mt-10 flex flex-wrap items-baseline gap-x-4 gap-y-1 md:mt-12">
+                <span className="text-[0.9375rem] font-semibold text-ink">{t.name}</span>
+                <span className="t-meta">
+                  {t.role} — {t.company}
                 </span>
-                <div>
-                  <p className="text-sm font-semibold text-bone">{t.name}</p>
-                  <p className="text-xs tracking-wide text-bone-faint">
-                    {t.role} — {t.company}
-                  </p>
-                </div>
               </footer>
             </motion.blockquote>
           </AnimatePresence>
         </div>
 
-        {/* Controls */}
-        <div className="mt-12 flex items-center gap-3" role="tablist" aria-label="Select testimonial">
+        {/* Controls — rules, not dots */}
+        <div
+          className="mt-4 flex items-center gap-2"
+          role="tablist"
+          aria-label="Select quote"
+        >
           {testimonials.map((tt, i) => (
             <button
               key={tt.name}
               type="button"
               role="tab"
               aria-selected={i === index}
-              aria-label={`Testimonial from ${tt.name}`}
+              aria-label={`Quote from ${tt.name}, ${tt.company}`}
               onClick={() => go(i)}
-              className="group flex h-8 items-center"
+              className="group flex h-9 items-center"
             >
               <span
-                className={`block h-[2px] rounded-full transition-all duration-700 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] ${
-                  i === index ? 'w-12 bg-accent' : 'w-6 bg-[rgba(242,239,233,0.22)] group-hover:bg-[rgba(242,239,233,0.5)]'
+                className={`block h-[2px] transition-all duration-[800ms] [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] ${
+                  i === index
+                    ? 'w-14 bg-[#0b0b0c]'
+                    : 'w-7 bg-[rgba(11,11,12,0.22)] group-hover:bg-[rgba(11,11,12,0.5)]'
                 }`}
               />
             </button>

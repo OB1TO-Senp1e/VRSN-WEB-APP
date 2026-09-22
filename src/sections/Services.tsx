@@ -1,53 +1,93 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Plus } from 'lucide-react'
-import { services } from '../data/content'
-import { fadeUp, staggerContainer, viewportOnce, EASE } from '../lib/motion'
-import SectionHeading from '../components/SectionHeading'
+import { useRef, useState } from 'react'
+import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion'
+import { services, serviceSummary, type Service } from '../data/content'
+import { EASE, fadeUp, staggerContainer, viewportOnce } from '../lib/motion'
+import { useFinePointer, usePrefersReducedMotion } from '../hooks/useMedia'
+import RevealText from '../components/RevealText'
 
-/** Large typographic accordion — one open row at a time. */
+/**
+ * One service as an oversized row (spec §09). On hover the row shifts,
+ * the index switches to the accent, the description opens, and a small
+ * image preview tracks the cursor.
+ */
 function ServiceRow({
   service,
-  open,
+  active,
+  onEnter,
+  onLeave,
+  expanded,
   onToggle
 }: {
-  service: (typeof services)[number]
-  open: boolean
+  service: Service
+  active: boolean
+  onEnter: () => void
+  onLeave: () => void
+  expanded: boolean
   onToggle: () => void
 }) {
+  const fine = useFinePointer()
+  const open = fine ? active : expanded
   const panelId = `service-panel-${service.index}`
-  const btnId = `service-btn-${service.index}`
 
   return (
-    <motion.li variants={fadeUp} className="border-b border-[rgba(242,239,233,0.1)]">
-      <h3>
+    <motion.li
+      variants={fadeUp}
+      className="relative border-b border-[var(--border)]"
+      onPointerEnter={fine ? onEnter : undefined}
+      onPointerLeave={fine ? onLeave : undefined}
+    >
+      {/* Ground wash on hover — subtle, no glass, no shadow */}
+      <motion.span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-[calc(var(--gutter)*-1)] inset-y-0 bg-[#101011]"
+        animate={{ opacity: open ? 1 : 0 }}
+        transition={{ duration: 0.6, ease: EASE }}
+      />
+
+      <h3 className="relative">
         <button
-          id={btnId}
           type="button"
+          onClick={onToggle}
+          onFocus={fine ? onEnter : undefined}
           aria-expanded={open}
           aria-controls={panelId}
-          onClick={onToggle}
-          className="group flex w-full items-center gap-6 py-7 text-left md:gap-10 md:py-9"
+          className="flex w-full items-baseline gap-5 py-7 text-left md:gap-9 md:py-9"
         >
-          <span className={`font-mono text-xs transition-colors duration-500 md:text-sm ${open ? 'text-accent' : 'text-bone-faint'}`}>
-            {service.index}
-          </span>
           <span
-            className={`display flex-1 text-[clamp(1.6rem,4.5vw,3.4rem)] transition-all duration-700 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] ${
-              open ? 'translate-x-2 text-bone md:translate-x-4' : 'text-bone-dim group-hover:translate-x-2 group-hover:text-bone'
+            className={`t-index shrink-0 transition-colors duration-500 ${
+              open ? 'text-accent' : 'text-bone-faint'
             }`}
           >
-            {service.title}
+            {service.index}
+          </span>
+          <span className="flex-1">
+            <motion.span
+              className="t-row block"
+              animate={{
+                x: open ? (fine ? 18 : 8) : 0,
+                color: open ? '#f2efe9' : '#8d8a84'
+              }}
+              transition={{ duration: 0.8, ease: EASE }}
+            >
+              {service.title}
+            </motion.span>
           </span>
           <motion.span
-            className={`grid size-10 shrink-0 place-items-center rounded-full border transition-colors duration-500 md:size-12 ${
-              open ? 'border-accent text-accent' : 'border-[rgba(242,239,233,0.18)] text-bone-faint group-hover:border-[rgba(242,239,233,0.4)] group-hover:text-bone'
-            }`}
+            className="t-meta hidden shrink-0 md:block"
+            animate={{ opacity: open ? 1 : 0, x: open ? 0 : 10 }}
+            transition={{ duration: 0.6, ease: EASE }}
+            aria-hidden="true"
+          >
+            View →
+          </motion.span>
+          {/* Mobile affordance */}
+          <motion.span
+            className="shrink-0 text-lg leading-none text-bone-faint md:hidden"
             animate={{ rotate: open ? 45 : 0 }}
             transition={{ duration: 0.5, ease: EASE }}
             aria-hidden="true"
           >
-            <Plus className="size-4" />
+            +
           </motion.span>
         </button>
       </h3>
@@ -56,22 +96,19 @@ function ServiceRow({
         {open && (
           <motion.div
             id={panelId}
-            role="region"
-            aria-labelledby={btnId}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.6, ease: EASE }}
-            className="overflow-hidden"
+            transition={{ duration: 0.65, ease: EASE }}
+            className="relative overflow-hidden"
           >
-            <div className="grid gap-6 pb-9 pl-12 md:grid-cols-2 md:pl-24">
-              <p className="max-w-lg text-base leading-relaxed text-bone-dim">{service.body}</p>
-              <ul className="flex flex-wrap content-start gap-2" aria-label={`${service.title} capabilities`}>
+            <div className="grid gap-6 pb-8 pl-9 md:grid-cols-12 md:gap-10 md:pb-10 md:pl-[4.5rem]">
+              <p className="t-body max-w-[52ch] !text-[1rem] md:col-span-6">
+                {service.body}
+              </p>
+              <ul className="flex flex-col gap-1.5 md:col-span-4 md:col-start-8">
                 {service.tags.map((t) => (
-                  <li
-                    key={t}
-                    className="rounded-full border border-[rgba(242,239,233,0.14)] px-3.5 py-1.5 text-xs tracking-wide text-bone-dim"
-                  >
+                  <li key={t} className="t-meta !tracking-[0.14em]">
                     {t}
                   </li>
                 ))}
@@ -85,30 +122,114 @@ function ServiceRow({
 }
 
 export default function Services() {
-  const [openIndex, setOpenIndex] = useState<number>(1)
+  const fine = useFinePointer()
+  const reduced = usePrefersReducedMotion()
+  const [active, setActive] = useState<number | null>(null)
+  const [expanded, setExpanded] = useState<number | null>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+
+  /* Cursor-tracked preview */
+  const px = useMotionValue(0)
+  const py = useMotionValue(0)
+  const spx = useSpring(px, { stiffness: 140, damping: 22, mass: 0.5 })
+  const spy = useSpring(py, { stiffness: 140, damping: 22, mass: 0.5 })
+
+  const onPointerMove = (e: React.PointerEvent) => {
+    if (!fine || reduced || !listRef.current) return
+    const r = listRef.current.getBoundingClientRect()
+    px.set(e.clientX - r.left)
+    py.set(e.clientY - r.top)
+  }
+
+  const showPreview = fine && !reduced && active !== null
 
   return (
-    <section id="services" className="relative bg-ink-2 px-6 py-28 md:px-10 md:py-40" aria-label="Services">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-14 md:mb-20">
-          <SectionHeading number="02" label="What we do" title="Capabilities." />
+    <section id="services" className="relative py-24 md:py-32 lg:py-40" aria-label="Services">
+      <div className="shell">
+        {/* Header */}
+        <div className="grid gap-9 md:grid-cols-12 md:items-end md:gap-10">
+          <div className="md:col-span-7">
+            <motion.p
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={viewportOnce}
+              className="eyebrow mb-7 md:mb-10"
+            >
+              <span className="text-accent">03</span>
+              <span className="px-3 text-[var(--muted-2)]">/</span>
+              Services
+            </motion.p>
+            <RevealText as="h2" className="t-display text-bone" lines={['WHAT WE', 'DO.']} />
+          </div>
+
+          {/* Compact typographic summary (spec §10) */}
+          <motion.ul
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewportOnce}
+            className="flex flex-wrap gap-x-6 gap-y-1 md:col-span-4 md:col-start-9 md:flex-col md:gap-y-1.5"
+            aria-label="Disciplines"
+          >
+            {serviceSummary.map((s) => (
+              <motion.li
+                key={s}
+                variants={fadeUp}
+                className="text-[0.9375rem] font-medium text-bone-dim md:text-base"
+              >
+                {s}
+              </motion.li>
+            ))}
+          </motion.ul>
         </div>
-        <motion.ul
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOnce}
-          className="border-t border-[rgba(242,239,233,0.1)]"
-        >
-          {services.map((s, i) => (
-            <ServiceRow
-              key={s.index}
-              service={s}
-              open={openIndex === i}
-              onToggle={() => setOpenIndex(openIndex === i ? -1 : i)}
-            />
-          ))}
-        </motion.ul>
+
+        {/* Rows */}
+        <div ref={listRef} className="relative mt-14 md:mt-24" onPointerMove={onPointerMove}>
+          <motion.ul
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewportOnce}
+            className="border-t border-[var(--border)]"
+          >
+            {services.map((s, i) => (
+              <ServiceRow
+                key={s.index}
+                service={s}
+                active={active === i}
+                onEnter={() => setActive(i)}
+                onLeave={() => setActive((cur) => (cur === i ? null : cur))}
+                expanded={expanded === i}
+                onToggle={() => setExpanded((cur) => (cur === i ? null : i))}
+              />
+            ))}
+          </motion.ul>
+
+          {/* Cursor-tracked image preview — desktop only */}
+          <AnimatePresence>
+            {showPreview && (
+              <motion.div
+                key={services[active!].index}
+                aria-hidden="true"
+                className="frame pointer-events-none absolute left-0 top-0 z-[5] aspect-[4/5] w-[14rem] xl:w-[16rem]"
+                style={{ x: spx, y: spy, translateX: '-115%', translateY: '-50%' }}
+                initial={{ opacity: 0, clipPath: 'inset(100% 0% 0% 0%)' }}
+                animate={{ opacity: 1, clipPath: 'inset(0% 0% 0% 0%)' }}
+                exit={{ opacity: 0, clipPath: 'inset(0% 0% 100% 0%)' }}
+                transition={{ duration: 0.55, ease: EASE }}
+              >
+                <img
+                  src={services[active!].image}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="size-full object-cover grayscale"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </section>
   )

@@ -1,95 +1,151 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useInView, useScroll, useTransform, animate } from 'framer-motion'
-import { stats, type Stat } from '../data/content'
-import { fadeUp, imageReveal, staggerContainer, viewportOnce } from '../lib/motion'
+import { motion, animate, useInView } from 'framer-motion'
+import { stats, studio, processStages, type Stat } from '../data/content'
+import { fadeUp, staggerContainer, viewportOnce } from '../lib/motion'
 import { usePrefersReducedMotion } from '../hooks/useMedia'
-import SectionHeading from '../components/SectionHeading'
+import RevealText from '../components/RevealText'
+import ImageReveal from '../components/ImageReveal'
+import EditorialLink from '../components/EditorialLink'
 
-/** Animated counter that counts up when scrolled into view. */
+/** Counter that resolves once, when scrolled into view (spec §11). */
 function Counter({ stat }: { stat: Stat }) {
   const reduced = usePrefersReducedMotion()
   const ref = useRef<HTMLSpanElement>(null)
   const inView = useInView(ref, { once: true, margin: '-15% 0px' })
-  const [display, setDisplay] = useState(reduced ? stat.value : 0)
+  const [value, setValue] = useState(reduced ? stat.value : 0)
 
   useEffect(() => {
     if (!inView || reduced) return
     const controls = animate(0, stat.value, {
-      duration: 1.8,
+      duration: 1.7,
       ease: [0.16, 1, 0.3, 1],
-      onUpdate: (v) => setDisplay(Math.round(v))
+      onUpdate: (v) => setValue(Math.round(v))
     })
     return () => controls.stop()
   }, [inView, reduced, stat.value])
 
   return (
-    <span ref={ref} className="display text-[clamp(3rem,6vw,5.5rem)] text-bone tabular-nums">
-      {display}
+    <span
+      ref={ref}
+      className="display block text-[clamp(2.75rem,7vw,5rem)] tabular-nums text-bone"
+    >
+      {String(value).padStart(2, '0')}
       <span className="text-accent">{stat.suffix}</span>
     </span>
   )
 }
 
 export default function About() {
-  const reduced = usePrefersReducedMotion()
-  const imgRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: imgRef, offset: ['start end', 'end start'] })
-  const imgY = useTransform(scrollYProgress, [0, 1], reduced ? ['0%', '0%'] : ['-8%', '8%'])
-
   return (
-    <section id="about" className="relative px-6 py-28 md:px-10 md:py-40" aria-label="About the studio">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-16 md:mb-24">
-          <SectionHeading number="03" label="The studio" title="Small team. Sharp work." />
-        </div>
+    <section id="about" className="relative py-24 md:py-32 lg:py-40" aria-label="About the studio">
+      <div className="shell">
+        {/* Header */}
+        <motion.p
+          variants={fadeUp}
+          initial="hidden"
+          whileInView="visible"
+          viewport={viewportOnce}
+          className="eyebrow mb-7 md:mb-10"
+        >
+          <span className="text-accent">04</span>
+          <span className="px-3 text-[var(--muted-2)]">/</span>
+          Studio
+        </motion.p>
 
-        <div className="grid gap-14 md:grid-cols-12 md:gap-10">
-          {/* Statement */}
+        <div className="grid gap-12 md:grid-cols-12 md:gap-10">
+          {/* Headline */}
+          <div className="md:col-span-7">
+            <RevealText
+              as="h2"
+              className="t-display text-bone"
+              lines={[
+                'WE MAKE',
+                'BRANDS',
+                <>
+                  <span className="t-em pr-[0.06em] text-accent">Matter</span>.
+                </>
+              ]}
+            />
+          </div>
+
+          {/* Copy */}
           <motion.div
             variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
             viewport={viewportOnce}
-            className="md:col-span-7"
+            className="md:col-span-4 md:col-start-9 md:pt-4"
           >
-            <motion.p variants={fadeUp} className="display text-[clamp(1.5rem,3vw,2.4rem)] leading-[1.25] text-bone">
-              We believe great work comes from fewer, deeper collaborations — not a
-              production line. Every project is led by the people who actually make it.
+            <motion.p variants={fadeUp} className="t-body">
+              Great work comes from fewer, deeper collaborations — not a
+              production line. We keep the team small, the process honest and
+              the standard uncomfortable.
             </motion.p>
-            <motion.p variants={fadeUp} className="mt-8 max-w-xl text-base leading-relaxed text-bone-dim">
-              Founded in 2016, VRSN is an independent practice working across brand,
-              web and motion. We keep the team deliberately small, the process
-              deliberately honest, and the standard deliberately uncomfortable. If it
-              doesn't move the work forward, we cut it.
+            <motion.p variants={fadeUp} className="t-body mt-6">
+              If it does not move the work forward, we cut it. That applies to
+              features, pages, meetings and ideas — including our own.
             </motion.p>
-            <motion.ul variants={fadeUp} className="mt-10 flex flex-wrap gap-x-8 gap-y-3 text-xs tracking-[0.2em] text-bone-faint">
-              <li>STRATEGY-LED</li>
-              <li>DESIGN-OBSESSED</li>
-              <li>ENGINEERING-NATIVE</li>
-            </motion.ul>
+            <motion.div variants={fadeUp} className="mt-9">
+              <EditorialLink href="#contact" size="md" cursor="talk">
+                Work with us
+              </EditorialLink>
+            </motion.div>
           </motion.div>
+        </div>
 
-          {/* Parallax image */}
+        {/* Image + approach — asymmetric pairing */}
+        <div className="mt-20 grid gap-12 md:mt-28 md:grid-cols-12 md:gap-10">
+          <div className="md:col-span-5">
+            <ImageReveal
+              src="/images/about-studio.jpg"
+              alt="Monochrome geometric architecture — the visual language of the VRSN studio"
+              aspect="aspect-[4/3] md:aspect-[4/5]"
+              parallax={7}
+              sizes="(max-width: 768px) 100vw, 40vw"
+            />
+            <motion.p
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={viewportOnce}
+              className="t-meta mt-4"
+            >
+              Studio — {studio.location}
+            </motion.p>
+          </div>
+
+          {/* Approach as a numbered editorial list, not cards */}
           <motion.div
-            variants={imageReveal}
+            variants={staggerContainer}
             initial="hidden"
             whileInView="visible"
             viewport={viewportOnce}
-            className="md:col-span-5"
+            className="md:col-span-6 md:col-start-7 md:pt-6"
           >
-            <div ref={imgRef} className="img-frame relative aspect-[4/3] md:aspect-[3/4]">
-              <motion.img
-                src="/images/about-studio.jpg"
-                alt="Monochrome geometric architecture — the visual language of the VRSN studio"
-                loading="lazy"
-                decoding="async"
-                className="!h-[116%] w-full object-cover"
-                style={{ y: imgY }}
-              />
-              <span className="absolute bottom-5 left-5 rounded-full border border-[rgba(242,239,233,0.18)] bg-[rgba(10,10,11,0.5)] px-3 py-1 text-[10px] tracking-[0.18em] text-bone backdrop-blur-md">
-                STUDIO / WORLDWIDE
-              </span>
-            </div>
+            <motion.p variants={fadeUp} className="t-meta mb-8">
+              How we work
+            </motion.p>
+            <ol className="border-t border-[var(--border)]">
+              {processStages.map((stage) => (
+                <motion.li
+                  key={stage.index}
+                  variants={fadeUp}
+                  className="group grid grid-cols-[2.25rem_1fr] gap-x-4 border-b border-[var(--border)] py-6 md:grid-cols-[3rem_1fr] md:gap-x-6 md:py-7"
+                >
+                  <span className="t-index pt-1 text-bone-faint transition-colors duration-500 group-hover:text-accent">
+                    {stage.index}
+                  </span>
+                  <div>
+                    <h3 className="display text-[1.375rem] text-bone md:text-[1.625rem]">
+                      {stage.title}
+                    </h3>
+                    <p className="mt-2 max-w-[54ch] text-[0.9375rem] leading-relaxed text-bone-dim">
+                      {stage.body}
+                    </p>
+                  </div>
+                </motion.li>
+              ))}
+            </ol>
           </motion.div>
         </div>
 
@@ -99,16 +155,14 @@ export default function About() {
           initial="hidden"
           whileInView="visible"
           viewport={viewportOnce}
-          className="mt-24 grid grid-cols-2 gap-y-14 border-t border-[rgba(242,239,233,0.1)] pt-14 md:grid-cols-4"
+          className="mt-20 grid grid-cols-2 gap-x-8 gap-y-12 border-t border-[var(--border)] pt-12 md:mt-28 md:grid-cols-4 md:pt-14"
         >
           {stats.map((s) => (
             <motion.div key={s.label} variants={fadeUp}>
-              <dt className="order-2 mt-3 block text-xs tracking-[0.2em] text-bone-faint">
-                {s.label.toUpperCase()}
-              </dt>
-              <dd className="order-1">
+              <dd>
                 <Counter stat={s} />
               </dd>
+              <dt className="t-meta mt-3">{s.label}</dt>
             </motion.div>
           ))}
         </motion.dl>

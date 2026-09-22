@@ -1,141 +1,115 @@
-import { useEffect, useState } from 'react'
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from 'framer-motion'
-import { navLinks } from '../data/content'
+import { useState } from 'react'
+import { motion, useMotionValueEvent, useScroll } from 'framer-motion'
+import { navLinks, studio } from '../data/content'
 import { EASE } from '../lib/motion'
-import Magnetic from './Magnetic'
+import MobileMenu from './MobileMenu'
 
 /**
- * Premium navigation: transparent at top, condenses into a floating
- * glass bar on scroll. Full-screen staggered overlay on mobile.
+ * Studio navigation (spec §01). Sits in the page margin rather than in a
+ * chrome bar: no border, no pill, no floating card. On scroll it tightens
+ * and picks up a faint blurred ground so type stays legible over imagery.
  */
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const { scrollY } = useScroll()
 
-  useMotionValueEvent(scrollY, 'change', (v) => setScrolled(v > 60))
-
-  // Lock body scroll while the overlay menu is open
-  useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : ''
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [open])
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  useMotionValueEvent(scrollY, 'change', (v) => {
+    const next = v > 48
+    if (next !== scrolled) setScrolled(next)
+  })
 
   return (
     <>
       <motion.header
-        initial={{ y: -80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.9, ease: EASE, delay: 1.6 }}
-        className="fixed inset-x-0 top-0 z-[70]"
+        initial={{ opacity: 0, y: -16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: EASE, delay: 0.35 }}
+        className="fixed inset-x-0 top-0 z-[74]"
       >
-        <div
-          className={`mx-auto flex items-center justify-between transition-all duration-700 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] ${
-            scrolled
-              ? 'mt-3 max-w-[calc(100%-1.5rem)] rounded-2xl border border-[rgba(242,239,233,0.08)] bg-[rgba(10,10,11,0.72)] px-5 py-3 backdrop-blur-xl md:max-w-4xl md:px-6'
-              : 'mt-0 max-w-none border border-transparent bg-transparent px-6 py-5 md:px-10 md:py-7'
-          }`}
+        {/* Ground: fades in on scroll only */}
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-0 backdrop-blur-lg"
+          animate={{ opacity: scrolled && !open ? 1 : 0 }}
+          transition={{ duration: 0.7, ease: EASE }}
+          style={{
+            background:
+              'linear-gradient(to bottom, rgba(11,11,12,0.88) 0%, rgba(11,11,12,0.62) 62%, rgba(11,11,12,0) 100%)'
+          }}
+        />
+
+        <motion.div
+          className="shell relative flex items-center justify-between"
+          animate={{
+            paddingTop: scrolled ? '0.95rem' : '1.75rem',
+            paddingBottom: scrolled ? '0.95rem' : '1.75rem'
+          }}
+          transition={{ duration: 0.8, ease: EASE }}
         >
-          <a href="#top" className="display text-lg tracking-tight text-bone" aria-label="VRSN — back to top">
-            VRSN<span className="text-accent">®</span>
+          {/* Wordmark */}
+          <a
+            href="#top"
+            className="display shrink-0 leading-none text-bone"
+            aria-label={`${studio.name} — back to top`}
+          >
+            <motion.span
+              className="inline-block"
+              animate={{ fontSize: scrolled ? '1.0625rem' : '1.1875rem' }}
+              transition={{ duration: 0.8, ease: EASE }}
+            >
+              {studio.name}
+              <span className="text-accent">{studio.mark}</span>
+            </motion.span>
           </a>
 
-          {/* Desktop links */}
-          <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
+          {/* Desktop navigation */}
+          <nav className="hidden items-center gap-10 lg:flex" aria-label="Primary">
             {navLinks.map((l) => (
-              <a key={l.href} href={l.href} className="u-link text-[13px] font-medium tracking-wide text-bone-dim hover:text-bone transition-colors duration-300">
+              <a
+                key={l.href}
+                href={l.href}
+                className="u-link text-[0.8125rem] font-medium tracking-[0.02em] text-bone-dim transition-colors duration-500 hover:text-bone"
+              >
                 {l.label}
               </a>
             ))}
-            <Magnetic strength={0.2}>
-              <a
-                href="#contact"
-                className="rounded-full bg-bone px-5 py-2 text-[13px] font-semibold text-ink transition-colors duration-500 hover:bg-accent"
-              >
-                Start a project
-              </a>
-            </Magnetic>
+            <span className="h-3 w-px bg-[var(--border-strong)]" aria-hidden="true" />
+            <a
+              href="#contact"
+              data-cursor="talk"
+              className="u-link text-[0.8125rem] font-semibold tracking-[0.02em] text-bone"
+            >
+              Let's Talk
+            </a>
           </nav>
 
-          {/* Mobile menu button */}
+          {/* Mobile / tablet trigger */}
           <button
             type="button"
-            className="relative z-[75] flex size-10 flex-col items-center justify-center gap-[5px] md:hidden"
-            aria-label={open ? 'Close menu' : 'Open menu'}
-            aria-expanded={open}
             onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            className="relative z-[76] -mr-1 flex items-center gap-2.5 py-1 pl-3 text-[0.6875rem] font-semibold uppercase tracking-[0.2em] text-bone lg:hidden"
           >
-            <motion.span
-              className="block h-[1.5px] w-6 bg-bone"
-              animate={open ? { rotate: 45, y: 3.5 } : { rotate: 0, y: 0 }}
-              transition={{ duration: 0.35, ease: EASE }}
-            />
-            <motion.span
-              className="block h-[1.5px] w-6 bg-bone"
-              animate={open ? { rotate: -45, y: -3 } : { rotate: 0, y: 0 }}
-              transition={{ duration: 0.35, ease: EASE }}
-            />
+            <span>{open ? 'Close' : 'Menu'}</span>
+            <span className="flex w-5 flex-col gap-[5px]" aria-hidden="true">
+              <motion.span
+                className="block h-[1.5px] w-full origin-center bg-bone"
+                animate={open ? { rotate: 45, y: 3.25 } : { rotate: 0, y: 0 }}
+                transition={{ duration: 0.45, ease: EASE }}
+              />
+              <motion.span
+                className="block h-[1.5px] w-full origin-center bg-bone"
+                animate={open ? { rotate: -45, y: -3.25 } : { rotate: 0, y: 0 }}
+                transition={{ duration: 0.45, ease: EASE }}
+              />
+            </span>
           </button>
-        </div>
+        </motion.div>
       </motion.header>
 
-      {/* Mobile full-screen overlay */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            className="fixed inset-0 z-[72] flex flex-col justify-between bg-ink/95 px-6 pb-10 pt-28 backdrop-blur-2xl md:hidden"
-            initial={{ clipPath: 'inset(0 0 100% 0)' }}
-            animate={{ clipPath: 'inset(0 0 0% 0)' }}
-            exit={{ clipPath: 'inset(0 0 100% 0)' }}
-            transition={{ duration: 0.7, ease: EASE }}
-          >
-            <nav aria-label="Mobile">
-              <ul className="space-y-2">
-                {navLinks.map((l, i) => (
-                  <li key={l.href} className="overflow-hidden">
-                    <motion.a
-                      href={l.href}
-                      className="display block py-2 text-5xl text-bone"
-                      initial={{ y: '110%' }}
-                      animate={{ y: '0%' }}
-                      exit={{ y: '110%', transition: { duration: 0.3 } }}
-                      transition={{ duration: 0.7, ease: EASE, delay: 0.15 + i * 0.07 }}
-                      onClick={() => setOpen(false)}
-                    >
-                      <span className="mr-4 align-super text-xs text-accent">0{i + 1}</span>
-                      {l.label}
-                    </motion.a>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ delay: 0.5, duration: 0.6, ease: EASE }}
-              className="space-y-4"
-            >
-              <a
-                href="#contact"
-                onClick={() => setOpen(false)}
-                className="block w-full rounded-full bg-bone py-4 text-center text-sm font-semibold text-ink"
-              >
-                Start a project
-              </a>
-              <p className="text-center text-xs tracking-[0.25em] text-bone-faint">HELLO@VRSN.STUDIO</p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <MobileMenu open={open} onClose={() => setOpen(false)} />
     </>
   )
 }
